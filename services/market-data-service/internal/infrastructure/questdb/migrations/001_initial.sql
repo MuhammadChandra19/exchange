@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS ticks (
     symbol SYMBOL CAPACITY 1000 CACHE,
     price DOUBLE,
     volume LONG,
-    exchange SYMBOL CAPACITY 50 CACHE,
     side SYMBOL CAPACITY 10 CACHE
 ) TIMESTAMP(timestamp) PARTITION BY HOUR WAL;
 
@@ -19,9 +18,8 @@ CREATE TABLE IF NOT EXISTS ohlc (
     close DOUBLE,
     volume LONG,
     trade_count LONG,
-    exchange SYMBOL CAPACITY 50 CACHE
 ) TIMESTAMP(timestamp) PARTITION BY DAY WAL
-DEDUP UPSERT KEYS (timestamp, symbol, interval, exchange);
+DEDUP UPSERT KEYS (timestamp, symbol, interval);
 
 -- Create orders table
 CREATE TABLE IF NOT EXISTS orders (
@@ -33,7 +31,6 @@ CREATE TABLE IF NOT EXISTS orders (
     quantity LONG,
     order_type SYMBOL CAPACITY 10 CACHE,
     status SYMBOL CAPACITY 10 CACHE,
-    exchange SYMBOL CAPACITY 50 CACHE,
     user_id STRING
 ) TIMESTAMP(timestamp) PARTITION BY DAY WAL
 DEDUP UPSERT KEYS (order_id);
@@ -48,7 +45,6 @@ CREATE TABLE IF NOT EXISTS order_events (
     side SYMBOL CAPACITY 10 CACHE,
     price DOUBLE,
     quantity LONG,
-    exchange SYMBOL CAPACITY 50 CACHE,
     user_id STRING,
     new_price DOUBLE,
     new_quantity LONG

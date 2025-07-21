@@ -11,7 +11,89 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	pgx "github.com/jackc/pgx/v5"
 	pgxpool "github.com/jackc/pgx/v5/pgxpool"
+	questdb "github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
 )
+
+// MockRowsInterface is a mock of RowsInterface interface.
+type MockRowsInterface struct {
+	ctrl     *gomock.Controller
+	recorder *MockRowsInterfaceMockRecorder
+}
+
+// MockRowsInterfaceMockRecorder is the mock recorder for MockRowsInterface.
+type MockRowsInterfaceMockRecorder struct {
+	mock *MockRowsInterface
+}
+
+// NewMockRowsInterface creates a new mock instance.
+func NewMockRowsInterface(ctrl *gomock.Controller) *MockRowsInterface {
+	mock := &MockRowsInterface{ctrl: ctrl}
+	mock.recorder = &MockRowsInterfaceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRowsInterface) EXPECT() *MockRowsInterfaceMockRecorder {
+	return m.recorder
+}
+
+// Close mocks base method.
+func (m *MockRowsInterface) Close() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Close")
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockRowsInterfaceMockRecorder) Close() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockRowsInterface)(nil).Close))
+}
+
+// Err mocks base method.
+func (m *MockRowsInterface) Err() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Err")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Err indicates an expected call of Err.
+func (mr *MockRowsInterfaceMockRecorder) Err() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Err", reflect.TypeOf((*MockRowsInterface)(nil).Err))
+}
+
+// Next mocks base method.
+func (m *MockRowsInterface) Next() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Next")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// Next indicates an expected call of Next.
+func (mr *MockRowsInterfaceMockRecorder) Next() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Next", reflect.TypeOf((*MockRowsInterface)(nil).Next))
+}
+
+// Scan mocks base method.
+func (m *MockRowsInterface) Scan(dest ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range dest {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Scan", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Scan indicates an expected call of Scan.
+func (mr *MockRowsInterfaceMockRecorder) Scan(dest ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scan", reflect.TypeOf((*MockRowsInterface)(nil).Scan), dest...)
+}
 
 // MockQuestDBClient is a mock of QuestDBClient interface.
 type MockQuestDBClient struct {
@@ -126,14 +208,14 @@ func (mr *MockQuestDBClientMockRecorder) Pool() *gomock.Call {
 }
 
 // Query mocks base method.
-func (m *MockQuestDBClient) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+func (m *MockQuestDBClient) Query(ctx context.Context, sql string, args ...any) (questdb.RowsInterface, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, sql}
 	for _, a := range args {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Query", varargs...)
-	ret0, _ := ret[0].(pgx.Rows)
+	ret0, _ := ret[0].(questdb.RowsInterface)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

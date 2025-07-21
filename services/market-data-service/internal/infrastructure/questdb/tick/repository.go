@@ -70,7 +70,7 @@ func (r *Repository) StoreBatch(ctx context.Context, ticks []*tickdomain.Tick) e
 
 // GetByFilter retrieves tick data points by filter.
 func (r *Repository) GetByFilter(ctx context.Context, filter tickdomain.TickFilter) ([]*tickdomain.Tick, error) {
-	query := "SELECT timestamp, symbol, price, volume, exchange, side FROM ticks WHERE 1=1"
+	query := "SELECT timestamp, symbol, price, volume, side FROM ticks WHERE 1=1"
 	args := []interface{}{}
 	argIndex := 1
 

@@ -13,7 +13,6 @@ type Order struct {
 	Quantity  int64
 	Type      string // "limit", "market", "stop"
 	Status    string // "active", "filled", "cancelled", "partial"
-	Exchange  string
 	UserID    string
 }
 
@@ -26,7 +25,6 @@ type OrderEvent struct {
 	Side      string
 	Price     float64
 	Quantity  int64
-	Exchange  string
 	UserID    string
 	// For modifications
 	NewPrice    *float64
@@ -34,15 +32,14 @@ type OrderEvent struct {
 }
 
 type OrderFilter struct {
-	Symbol   string
-	Side     string
-	Status   string
-	Exchange string
-	UserID   string
-	From     *time.Time
-	To       *time.Time
-	Limit    int
-	Offset   int
+	Symbol string
+	Side   string
+	Status string
+	UserID string
+	From   *time.Time
+	To     *time.Time
+	Limit  int
+	Offset int
 }
 
 // Order book level data
@@ -55,7 +52,6 @@ type OrderBookLevel struct {
 type OrderBook struct {
 	Symbol    string
 	Timestamp time.Time
-	Exchange  string
 	Bids      []OrderBookLevel
 	Asks      []OrderBookLevel
 }

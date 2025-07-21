@@ -21,7 +21,6 @@ type RawOrderEvent struct {
 	Price     float64   `json:"price"`
 	Quantity  int64     `json:"quantity"`
 	OrderType string    `json:"order_type"`
-	Exchange  string    `json:"exchange"`
 	UserID    string    `json:"user_id"`
 
 	// For modifications

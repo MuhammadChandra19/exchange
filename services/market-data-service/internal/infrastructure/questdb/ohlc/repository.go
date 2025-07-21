@@ -74,7 +74,7 @@ func (r *Repository) StoreBatch(ctx context.Context, ohlcs []*ohlcdomain.OHLC) e
 
 // GetByFilter retrieves OHLC data points by filter.
 func (r *Repository) GetByFilter(ctx context.Context, filter ohlcdomain.OHLCFilter) ([]*ohlcdomain.OHLC, error) {
-	query := "SELECT timestamp, symbol, interval, open, high, low, close, volume, trade_count, exchange FROM ohlc WHERE 1=1"
+	query := "SELECT timestamp, symbol, interval, open, high, low, close, volume, trade_count FROM ohlc WHERE 1=1"
 	args := []interface{}{}
 	argIndex := 1
 

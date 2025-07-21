@@ -95,9 +95,13 @@ func (c *Client) Exec(ctx context.Context, sql string, args ...any) error {
 	return err
 }
 
-// Query executes a query that returns rows
-func (c *Client) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
-	return c.pool.Query(ctx, sql, args...)
+// Query executes a query that returns rows - now returns RowsInterface
+func (c *Client) Query(ctx context.Context, sql string, args ...any) (RowsInterface, error) {
+	rows, err := c.pool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	return NewRowsWrapper(rows), nil
 }
 
 // QueryRow executes a query that is expected to return at most one row

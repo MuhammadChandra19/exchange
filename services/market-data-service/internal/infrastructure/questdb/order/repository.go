@@ -22,12 +22,12 @@ func NewRepository(client questdb.QuestDBClient) *Repository {
 }
 
 func (r *Repository) Store(ctx context.Context, order *orderdomain.Order) error {
-	query := `INSERT INTO orders (order_id, timestamp, symbol, side, price, quantity, order_type, status, exchange, user_id) 
-			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+	query := `INSERT INTO orders (order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id) 
+			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
 	err := r.client.Exec(ctx, query,
 		order.ID, order.Timestamp, order.Symbol, order.Side, order.Price,
-		order.Quantity, order.Type, order.Status, order.Exchange, order.UserID)
+		order.Quantity, order.Type, order.Status, order.UserID)
 
 	if err != nil {
 		return fmt.Errorf("failed to store order: %w", err)
@@ -44,12 +44,12 @@ func (r *Repository) StoreBatch(ctx context.Context, orders []*orderdomain.Order
 	copyCount, err := r.client.CopyFrom(
 		ctx,
 		pgx.Identifier{"orders"},
-		[]string{"order_id", "timestamp", "symbol", "side", "price", "quantity", "order_type", "status", "exchange", "user_id"},
+		[]string{"order_id", "timestamp", "symbol", "side", "price", "quantity", "order_type", "status", "user_id"},
 		pgx.CopyFromSlice(len(orders), func(i int) ([]any, error) {
 			order := orders[i]
 			return []any{
 				order.ID, order.Timestamp, order.Symbol, order.Side, order.Price,
-				order.Quantity, order.Type, order.Status, order.Exchange, order.UserID,
+				order.Quantity, order.Type, order.Status, order.UserID,
 			}, nil
 		}),
 	)
@@ -90,13 +90,13 @@ func (r *Repository) Update(ctx context.Context, orderID string, updates map[str
 }
 
 func (r *Repository) GetByID(ctx context.Context, orderID string) (*orderdomain.Order, error) {
-	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, exchange, user_id
+	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id
 			  FROM orders WHERE order_id = $1`
 
 	order := &orderdomain.Order{}
 	err := r.client.QueryRow(ctx, query, orderID).Scan(
 		&order.ID, &order.Timestamp, &order.Symbol, &order.Side, &order.Price,
-		&order.Quantity, &order.Type, &order.Status, &order.Exchange, &order.UserID)
+		&order.Quantity, &order.Type, &order.Status, &order.UserID)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -109,12 +109,12 @@ func (r *Repository) GetByID(ctx context.Context, orderID string) (*orderdomain.
 }
 
 func (r *Repository) StoreEvent(ctx context.Context, event *orderdomain.OrderEvent) error {
-	query := `INSERT INTO order_events (event_id, timestamp, order_id, event_type, symbol, side, price, quantity, exchange, user_id, new_price, new_quantity) 
-			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+	query := `INSERT INTO order_events (event_id, timestamp, order_id, event_type, symbol, side, price, quantity, user_id, new_price, new_quantity) 
+			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
 	err := r.client.Exec(ctx, query,
 		event.ID, event.Timestamp, event.OrderID, event.EventType, event.Symbol,
-		event.Side, event.Price, event.Quantity, event.Exchange, event.UserID,
+		event.Side, event.Price, event.Quantity, event.UserID,
 		event.NewPrice, event.NewQuantity)
 
 	if err != nil {
@@ -125,13 +125,13 @@ func (r *Repository) StoreEvent(ctx context.Context, event *orderdomain.OrderEve
 }
 
 func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string) ([]*orderdomain.Order, error) {
-	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, exchange, user_id
+	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id
 			  FROM orders 
 			  WHERE symbol = $1 AND side = $2 AND status = 'active'
 			  ORDER BY price DESC, timestamp ASC` // Best price first, then FIFO
 
 	if side == "sell" {
-		query = `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, exchange, user_id
+		query = `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id
 				 FROM orders 
 				 WHERE symbol = $1 AND side = $2 AND status = 'active'
 				 ORDER BY price ASC, timestamp ASC` // Best price first (lowest for sells)
@@ -147,7 +147,7 @@ func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string,
 	for rows.Next() {
 		order := &orderdomain.Order{}
 		err := rows.Scan(&order.ID, &order.Timestamp, &order.Symbol, &order.Side,
-			&order.Price, &order.Quantity, &order.Type, &order.Status, &order.Exchange, &order.UserID)
+			&order.Price, &order.Quantity, &order.Type, &order.Status, &order.UserID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan order: %w", err)
 		}
@@ -209,7 +209,6 @@ func (r *Repository) GetOrderBookSnapshot(ctx context.Context, symbol string, de
 	return &orderdomain.OrderBook{
 		Symbol:    symbol,
 		Timestamp: time.Now(),
-		Exchange:  "default", // You might want to pass this as parameter
 		Bids:      bids,
 		Asks:      asks,
 	}, nil

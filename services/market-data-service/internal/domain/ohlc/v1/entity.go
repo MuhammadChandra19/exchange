@@ -18,14 +18,12 @@ type OHLC struct {
 	Close      float64
 	Volume     int64
 	TradeCount int64
-	Exchange   string
 }
 
 // OHLCFilter represents the filter criteria for OHLC data.
 type OHLCFilter struct {
 	Symbol   string
 	Interval string // Must be one of interval.GetAllIntervalNames()
-	Exchange string
 	From     *time.Time
 	To       *time.Time
 	Limit    int
