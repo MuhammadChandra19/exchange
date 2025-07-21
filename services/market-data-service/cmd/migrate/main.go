@@ -35,7 +35,7 @@ func main() {
 	log.Println("Migrations completed successfully")
 }
 
-func runMigrations(ctx context.Context, client *questdb.Client) error {
+func runMigrations(ctx context.Context, client questdb.QuestDBClient) error {
 	migrationDir := "internal/infrastructure/questdb/migrations"
 
 	files, err := filepath.Glob(filepath.Join(migrationDir, "*.sql"))
