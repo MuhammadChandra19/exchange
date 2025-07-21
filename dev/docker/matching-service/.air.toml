@@ -1,0 +1,42 @@
+# Please refer to your tool's documentation for the correct .air.toml schema.
+# Remove all unsupported keys and sections.
+root = "."
+tmp_dir = "tmp"
+
+[build]
+bin = "./tmp/matching-service"
+cmd = "go build -o ./tmp/matching-service ./services/matching-service/cmd/main.go"
+delay = 1000
+exclude_dir = [
+  "backend-e2e",
+  "build",
+  "deployment",
+  "tmp",
+  "vendor",
+  ".git",
+  "bin",
+  "dist",
+]
+exclude_file = []
+exclude_regex = []
+exclude_unchanged = true
+follow_symlink = true
+include_dir = []
+include_file = [".env"]
+include_ext = ["go", "tpl", "tmpl", "html", "env"]
+kill_delay = "1s"
+log = "air.log"
+send_interrupt = true
+stop_on_error = true
+
+[color]
+build = "yellow"
+main = "magenta"
+runner = "green"
+watcher = "cyan"
+
+[log]
+time = false
+
+[misc]
+clean_on_exit = false

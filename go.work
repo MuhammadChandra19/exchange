@@ -1,0 +1,9 @@
+go 1.24.4
+
+use (
+	./pkg/errors
+	./pkg/logger
+	./pkg/redis
+	./services/matching-service
+	./pkg/util
+)

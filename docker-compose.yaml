@@ -1,0 +1,67 @@
+version: "3"
+services: # # The dependencies 
+  redis: 
+    image: redis:6.2-alpine 
+    ports: 
+      - '6379:6379'
+  zookeeper: 
+    image: docker.io/bitnami/zookeeper:3.8.0 
+    ports: 
+      - "2181:2181" 
+    environment: 
+      - ALLOW_ANONYMOUS_LOGIN=yes 
+    extra_hosts: 
+      - "localhost:127.0.0.1" 
+    networks: 
+      - app-network 
+  kafka: 
+    image: docker.io/bitnami/kafka:3.6.1 
+    ports: 
+      - "9092:9092" # Changed external port to 9092
+      - "29092:29092" 
+    depends_on: 
+      - zookeeper 
+    environment: 
+      - KAFKA_BROKER_ID=1 
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:29092 
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,CONTROLLER://kafka:29092 # Changed advertised listener 
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:29092 
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0 # The following lines are crucial for allowing external connections and for Kafka UI to work 
+      - KAFKA_INTER_BROKER_LISTENER_NAME=CONTROLLER 
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT 
+      - KAFKA_ADVERTISED_HOST_NAME=localhost # Important for external access 
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true # Enable auto topic creation 
+    extra_hosts: 
+    - "localhost:127.0.0.1"
+    networks: 
+      - app-network 
+  kafka-ui: 
+    image: provectuslabs/kafka-ui:latest 
+    ports: 
+      - "9999:8080" 
+    depends_on: 
+      - kafka 
+      - zookeeper 
+    environment: 
+      DYNAMIC_CONFIG_ENABLED: 'true' 
+      KAFKA_CLUSTERS_0_NAME: local 
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092 
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181 
+  # Uncomment these if you want to use avro schemas 
+  # - KAFKA_CLUSTERS_0_SCHEMAREGISTRY_URL=http://schema-registry:8081 
+  # - KAFKA_CLUSTERS_0_SCHEMAREGISTRY_USERNAME= 
+  # - KAFKA_CLUSTERS_0_SCHEMAREGISTRY_PASSWORD= 
+    restart: always 
+    extra_hosts: 
+      - "localhost:127.0.0.1" 
+    networks: 
+      - app-network
+volumes: 
+  mongo-data: 
+  kafka_data:
+networks: 
+  app-network:
