@@ -220,9 +220,10 @@ func (e *Engine) processOrder(orderRequest *orderbookv1.PlaceOrderRequest) error
 
 	order := orderbookv1.NewOrder(orderRequest.UserID, orderRequest.Size, orderRequest.Bid)
 
-	if orderRequest.Type == orderbookv1.OrderTypeLimit {
+	switch orderRequest.Type {
+	case orderbookv1.OrderTypeLimit:
 		return e.orderbook.PlaceLimitOrder(orderRequest.Price, order)
-	} else {
+	case orderbookv1.OrderTypeMarket:
 		matches, err := e.orderbook.PlaceMarketOrder(order)
 		if err != nil {
 			return err
@@ -231,6 +232,11 @@ func (e *Engine) processOrder(orderRequest *orderbookv1.PlaceOrderRequest) error
 		// SIMPLIFIED: Just log matches directly instead of using channel
 		if len(matches) > 0 {
 			e.logMatches(matches)
+		}
+	case orderbookv1.OrderTypeCancel:
+		err := e.orderbook.CancelOrder(orderRequest.OrderID)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -258,6 +264,8 @@ func (e *Engine) logMatches(matches []orderbookv1.Match) {
 			logger.Field{Key: "askUser", Value: match.Ask.UserID},
 			logger.Field{Key: "bidOrderID", Value: match.Bid.ID},
 			logger.Field{Key: "askOrderID", Value: match.Ask.ID},
+			logger.Field{Key: "askIsFilled", Value: match.AskIsFilled()},
+			logger.Field{Key: "bidIsFilled", Value: match.BidIsFilled()},
 		)
 	}
 }

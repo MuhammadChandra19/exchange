@@ -6,11 +6,16 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
+// OrderType represents the type of order.
 type OrderType string
 
 const (
+	// OrderTypeMarket represents a market order.
 	OrderTypeMarket OrderType = "market"
-	OrderTypeLimit  OrderType = "limit"
+	// OrderTypeLimit represents a limit order.
+	OrderTypeLimit OrderType = "limit"
+	// OrderTypeCancel represents a cancel order.
+	OrderTypeCancel OrderType = "cancel"
 )
 
 // Order represents a single order in the order book.
@@ -26,12 +31,13 @@ type Order struct {
 
 // PlaceOrderRequest represents a request to place an order in the order book.
 type PlaceOrderRequest struct {
-	UserID string    `json:"userID"`
-	Type   OrderType `json:"type"`
-	Bid    bool      `json:"bid"`
-	Size   float64   `json:"size"`
-	Price  float64   `json:"price"`
-	Offset int64     // Offset for the order in the stream
+	OrderID string    `json:"orderID"`
+	UserID  string    `json:"userID"`
+	Type    OrderType `json:"type"`
+	Bid     bool      `json:"bid"`
+	Size    float64   `json:"size"`
+	Price   float64   `json:"price"`
+	Offset  int64     // Offset for the order in the stream
 }
 
 // NewOrder creates a new order with the given parameters.
