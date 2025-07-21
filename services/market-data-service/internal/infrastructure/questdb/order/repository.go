@@ -1,0 +1,235 @@
+package order
+
+import (
+	"context"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/jackc/pgx/v5"
+	orderdomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/order/v1"
+	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
+)
+
+type Repository struct {
+	client questdb.QuestDBClient
+}
+
+func NewRepository(client questdb.QuestDBClient) *Repository {
+	return &Repository{
+		client: client,
+	}
+}
+
+func (r *Repository) Store(ctx context.Context, order *orderdomain.Order) error {
+	query := `INSERT INTO orders (order_id, timestamp, symbol, side, price, quantity, order_type, status, exchange, user_id) 
+			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+
+	err := r.client.Exec(ctx, query,
+		order.ID, order.Timestamp, order.Symbol, order.Side, order.Price,
+		order.Quantity, order.Type, order.Status, order.Exchange, order.UserID)
+
+	if err != nil {
+		return fmt.Errorf("failed to store order: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) StoreBatch(ctx context.Context, orders []*orderdomain.Order) error {
+	if len(orders) == 0 {
+		return nil
+	}
+
+	copyCount, err := r.client.CopyFrom(
+		ctx,
+		pgx.Identifier{"orders"},
+		[]string{"order_id", "timestamp", "symbol", "side", "price", "quantity", "order_type", "status", "exchange", "user_id"},
+		pgx.CopyFromSlice(len(orders), func(i int) ([]any, error) {
+			order := orders[i]
+			return []any{
+				order.ID, order.Timestamp, order.Symbol, order.Side, order.Price,
+				order.Quantity, order.Type, order.Status, order.Exchange, order.UserID,
+			}, nil
+		}),
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to copy orders batch: %w", err)
+	}
+
+	fmt.Printf("Inserted %d orders\n", copyCount)
+	return nil
+}
+
+func (r *Repository) Update(ctx context.Context, orderID string, updates map[string]interface{}) error {
+	if len(updates) == 0 {
+		return nil
+	}
+
+	setParts := make([]string, 0, len(updates))
+	args := make([]interface{}, 0, len(updates)+1)
+	argIndex := 1
+
+	for column, value := range updates {
+		setParts = append(setParts, fmt.Sprintf("%s = $%d", column, argIndex))
+		args = append(args, value)
+		argIndex++
+	}
+
+	query := fmt.Sprintf("UPDATE orders SET %s WHERE order_id = $%d",
+		strings.Join(setParts, ", "), argIndex)
+	args = append(args, orderID)
+
+	err := r.client.Exec(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to update order %s: %w", orderID, err)
+	}
+
+	return nil
+}
+
+func (r *Repository) GetByID(ctx context.Context, orderID string) (*orderdomain.Order, error) {
+	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, exchange, user_id
+			  FROM orders WHERE order_id = $1`
+
+	order := &orderdomain.Order{}
+	err := r.client.QueryRow(ctx, query, orderID).Scan(
+		&order.ID, &order.Timestamp, &order.Symbol, &order.Side, &order.Price,
+		&order.Quantity, &order.Type, &order.Status, &order.Exchange, &order.UserID)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get order: %w", err)
+	}
+
+	return order, nil
+}
+
+func (r *Repository) StoreEvent(ctx context.Context, event *orderdomain.OrderEvent) error {
+	query := `INSERT INTO order_events (event_id, timestamp, order_id, event_type, symbol, side, price, quantity, exchange, user_id, new_price, new_quantity) 
+			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+
+	err := r.client.Exec(ctx, query,
+		event.ID, event.Timestamp, event.OrderID, event.EventType, event.Symbol,
+		event.Side, event.Price, event.Quantity, event.Exchange, event.UserID,
+		event.NewPrice, event.NewQuantity)
+
+	if err != nil {
+		return fmt.Errorf("failed to store order event: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string) ([]*orderdomain.Order, error) {
+	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, exchange, user_id
+			  FROM orders 
+			  WHERE symbol = $1 AND side = $2 AND status = 'active'
+			  ORDER BY price DESC, timestamp ASC` // Best price first, then FIFO
+
+	if side == "sell" {
+		query = `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, exchange, user_id
+				 FROM orders 
+				 WHERE symbol = $1 AND side = $2 AND status = 'active'
+				 ORDER BY price ASC, timestamp ASC` // Best price first (lowest for sells)
+	}
+
+	rows, err := r.client.Query(ctx, query, symbol, side)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query active orders: %w", err)
+	}
+	defer rows.Close()
+
+	var orders []*orderdomain.Order
+	for rows.Next() {
+		order := &orderdomain.Order{}
+		err := rows.Scan(&order.ID, &order.Timestamp, &order.Symbol, &order.Side,
+			&order.Price, &order.Quantity, &order.Type, &order.Status, &order.Exchange, &order.UserID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan order: %w", err)
+		}
+		orders = append(orders, order)
+	}
+
+	return orders, nil
+}
+
+func (r *Repository) GetOrderBookSnapshot(ctx context.Context, symbol string, depth int) (*orderdomain.OrderBook, error) {
+	// Get aggregated bid levels
+	bidQuery := `SELECT price, SUM(quantity) as total_quantity, COUNT(*) as order_count
+				 FROM orders 
+				 WHERE symbol = $1 AND side = 'buy' AND status = 'active'
+				 GROUP BY price
+				 ORDER BY price DESC
+				 LIMIT $2`
+
+	bidRows, err := r.client.Query(ctx, bidQuery, symbol, depth)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query bid levels: %w", err)
+	}
+	defer bidRows.Close()
+
+	var bids []orderdomain.OrderBookLevel
+	for bidRows.Next() {
+		var level orderdomain.OrderBookLevel
+		err := bidRows.Scan(&level.Price, &level.Quantity, &level.Orders)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan bid level: %w", err)
+		}
+		bids = append(bids, level)
+	}
+
+	// Get aggregated ask levels
+	askQuery := `SELECT price, SUM(quantity) as total_quantity, COUNT(*) as order_count
+				 FROM orders 
+				 WHERE symbol = $1 AND side = 'sell' AND status = 'active'
+				 GROUP BY price
+				 ORDER BY price ASC
+				 LIMIT $2`
+
+	askRows, err := r.client.Query(ctx, askQuery, symbol, depth)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query ask levels: %w", err)
+	}
+	defer askRows.Close()
+
+	var asks []orderdomain.OrderBookLevel
+	for askRows.Next() {
+		var level orderdomain.OrderBookLevel
+		err := askRows.Scan(&level.Price, &level.Quantity, &level.Orders)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan ask level: %w", err)
+		}
+		asks = append(asks, level)
+	}
+
+	return &orderdomain.OrderBook{
+		Symbol:    symbol,
+		Timestamp: time.Now(),
+		Exchange:  "default", // You might want to pass this as parameter
+		Bids:      bids,
+		Asks:      asks,
+	}, nil
+}
+
+// Helper methods for the rest of the interface
+func (r *Repository) GetByFilter(ctx context.Context, filter orderdomain.OrderFilter) ([]*orderdomain.Order, error) {
+	// Implementation similar to tick repository GetByFilter
+	// ... (implement based on your filtering needs)
+	return nil, nil
+}
+
+func (r *Repository) StoreEventBatch(ctx context.Context, events []*orderdomain.OrderEvent) error {
+	// Implementation using CopyFrom for batch event storage
+	// ... (implement similar to other batch operations)
+	return nil
+}
+
+func (r *Repository) GetEventsByOrderID(ctx context.Context, orderID string) ([]*orderdomain.OrderEvent, error) {
+	// Implementation to get all events for a specific order
+	// ... (implement based on your needs)
+	return nil, nil
+}
