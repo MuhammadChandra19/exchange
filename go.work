@@ -5,7 +5,7 @@ use (
 	./pkg/logger
 	./pkg/redis
 	./pkg/util
-	./proto/go
+	./proto
 	./services/market-data-service
 	./services/matching-service
 )

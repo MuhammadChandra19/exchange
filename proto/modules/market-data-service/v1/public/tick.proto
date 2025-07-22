@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package modules.market_data_service.v1.public;
+
+import "google/api/annotations.proto";
+import "modules/market-data-service/v1/shared/tick.proto";
+import "google/protobuf/timestamp.proto";
+import "openapiv3/annotations.proto";
+import "core/v1/annotations.proto";
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/modules/market-data-service/v1/public";
+
+option (openapi.v3.document) = {
+  info : {title : "Market Data - Tick Service" version : "1.0.0"}
+  servers : [ {url : "http://localhost:8080"} ]
+};
+
+service TickService {
+  option (core.v1.service_descriptor) = {
+    path_prefixes : {path : "/v1/tick"}
+  };
+
+  rpc GetLatestTick(GetLatestTickRequest) returns (GetLatestTickResponse) {
+    option (google.api.http) = {
+      get : "/latest/{symbol}"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get latest tick"
+      description : "Retrieves the latest tick for a given symbol"
+    };
+  }
+
+  rpc GetTickVolume(GetTickVolumeRequest) returns (GetTickVolumeResponse) {
+    option (google.api.http) = {
+      get : "/volume/{symbol}"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get tick volume"
+      description : "Retrieves the volume for a given symbol"
+    };
+  }
+
+  rpc GetTicks(GetTicksRequest) returns (GetTicksResponse) {
+    option (google.api.http) = {
+      get : "/list"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get ticks"
+      description : "Retrieves ticks"
+    };
+  }
+};
+
+message GetLatestTickRequest { string symbol = 1 [ json_name = "symbol" ]; }
+message GetLatestTickResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  shared.Tick data = 6;
+}
+
+message GetTickVolumeRequest { string symbol = 1 [ json_name = "symbol" ]; }
+message GetTickVolumeResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  int64 data = 6;
+}
+
+message GetTicksRequest {
+  string symbol = 1 [ json_name = "symbol" ];
+  string from = 2 [ json_name = "from" ];
+  string to = 3 [ json_name = "to" ];
+  int32 limit = 4 [ json_name = "limit" ];
+  int32 offset = 5 [ json_name = "offset" ];
+}
+message GetTicksResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  repeated shared.Tick data = 6;
+}

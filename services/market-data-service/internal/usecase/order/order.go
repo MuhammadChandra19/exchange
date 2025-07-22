@@ -37,13 +37,31 @@ func (u *Usecase) GetOrderByFilter(ctx context.Context, filter order.OrderFilter
 	return orders, nil
 }
 
-// GetActiveOrdersBySymbol gets the active orders for a given symbol and side.
-func (u *Usecase) GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string) ([]*order.Order, error) {
+// GetPairActiveOrders gets the active orders for a given symbol and side.
+func (u *Usecase) GetPairActiveOrders(ctx context.Context, symbol string, side string) ([]*order.Order, error) {
 	orders, err := u.orderRepository.GetActiveOrdersBySymbol(ctx, symbol, side)
 	if err != nil {
 		return nil, errors.TracerFromError(err)
 	}
 	return orders, nil
+}
+
+// DeleteOrder deletes an order.
+func (u *Usecase) DeleteOrder(ctx context.Context, orderID string) error {
+	order, err := u.orderRepository.GetByID(ctx, orderID)
+	if err != nil {
+		return errors.TracerFromError(err)
+	}
+
+	if order.Status != "active" {
+		return errors.NewTracer("order is not active")
+	}
+
+	err = u.orderRepository.Delete(ctx, orderID)
+	if err != nil {
+		return errors.TracerFromError(err)
+	}
+	return nil
 }
 
 // GetOrderBookSnapshot gets the order book snapshot for a given symbol and depth.

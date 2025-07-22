@@ -29,8 +29,8 @@ func (u *Usecase) GetLatestTick(ctx context.Context, symbol string) (*tick.Tick,
 	return tick, nil
 }
 
-// GetTick gets the tick for a given filter.
-func (u *Usecase) GetTick(ctx context.Context, filter tick.Filter) ([]*tick.Tick, error) {
+// GetTicks gets the tick for a given filter.
+func (u *Usecase) GetTicks(ctx context.Context, filter tick.Filter) ([]*tick.Tick, error) {
 	tick, err := u.tickRepository.GetByFilter(ctx, filter)
 	if err != nil {
 		return nil, errors.TracerFromError(err)

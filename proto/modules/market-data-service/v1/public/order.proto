@@ -54,6 +54,29 @@ service OrderService {
       description : "Retrieves orders"
     };
   }
+
+  rpc GetPairActiveOrders(GetPairActiveOrdersRequest)
+      returns (GetPairActiveOrdersResponse) {
+    option (google.api.http) = {
+      get : "/pair/{symbol}"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get pair active orders"
+    };
+  }
+};
+
+message GetPairActiveOrdersRequest {
+  string symbol = 1 [ json_name = "symbol" ];
+  string side = 2 [ json_name = "side" ];
+}
+message GetPairActiveOrdersResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  repeated shared.Order data = 6;
 }
 
 message GetOrderRequest { string orderID = 1 [ json_name = "orderID" ]; }
