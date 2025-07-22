@@ -15,17 +15,6 @@ if [ ! -f "go.mod" ]; then
     go mod init github.com/muhammadchandra19/exchange/proto/go
 fi
 
-# Tidy up dependencies
-echo "🧹 Running go mod tidy..."
-go mod tidy
-
-# Create vendor directory
-echo "📦 Running go mod vendor..."
-go mod vendor
-
-# Verify everything builds
-echo "🔨 Verifying build..."
-go build ./...
 
 echo "✅ Post-generation steps complete!"
 

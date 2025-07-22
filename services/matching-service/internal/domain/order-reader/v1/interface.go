@@ -3,7 +3,7 @@ package orderreaderv1
 import (
 	"context"
 
-	orderbookv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/orderbook/v1"
+	pb "github.com/muhammadchandra19/exchange/proto/go/kafka/v1"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -12,7 +12,7 @@ import (
 //go:generate mockgen -source interface.go -destination=mock/interface_mock.go -package=orderreaderv1_mock
 type OrderReader interface {
 	// ReadMessage reads a message and returns the offset and parsed order
-	ReadMessage(ctx context.Context) (kafka.Message, orderbookv1.PlaceOrderRequest, error)
+	ReadMessage(ctx context.Context) (kafka.Message, pb.PlaceOrderPayload, error)
 	// SetOffset sets the offset for the reader
 	SetOffset(offset int64) error
 	// Close closes the reader

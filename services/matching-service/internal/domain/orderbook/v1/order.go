@@ -3,6 +3,7 @@ package orderbookv1
 import (
 	"time"
 
+	pb "github.com/muhammadchandra19/exchange/proto/go/kafka/v1"
 	"github.com/oklog/ulid/v2"
 )
 
@@ -38,6 +39,19 @@ type PlaceOrderRequest struct {
 	Size    float64   `json:"size"`
 	Price   float64   `json:"price"`
 	Offset  int64     // Offset for the order in the stream
+}
+
+// FromKafkaPayload converts a Kafka payload to a PlaceOrderRequest.
+func (r *PlaceOrderRequest) FromKafkaPayload(payload *pb.PlaceOrderPayload) *PlaceOrderRequest {
+	return &PlaceOrderRequest{
+		OrderID: payload.OrderId,
+		UserID:  payload.UserId,
+		Type:    OrderType(payload.Type),
+		Bid:     payload.Bid,
+		Size:    payload.Size,
+		Price:   payload.Price,
+		Offset:  payload.Offset,
+	}
 }
 
 // NewOrder creates a new order with the given parameters.

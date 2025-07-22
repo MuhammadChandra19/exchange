@@ -12,6 +12,12 @@ breaking:
     - EXTENSION_NO_DELETE
     - FIELD_NO_DELETE
 
+build:
+  excludes:
+    - go
+    - openapi
+    - ts
+
 lint:
   use:
     - DEFAULT

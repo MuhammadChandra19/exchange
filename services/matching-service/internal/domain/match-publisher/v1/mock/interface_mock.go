@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	matchpublisherv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/match-publisher/v1"
+	kafkav1 "github.com/muhammadchandra19/exchange/proto/go/kafka/v1"
 )
 
 // MockMatchPublisher is a mock of MatchPublisher interface.
@@ -36,15 +36,15 @@ func (m *MockMatchPublisher) EXPECT() *MockMatchPublisherMockRecorder {
 }
 
 // PublishMatchEvent mocks base method.
-func (m *MockMatchPublisher) PublishMatchEvent(ctx context.Context, matchEvent *matchpublisherv1.MatchEvent) error {
+func (m *MockMatchPublisher) PublishMatchEvent(ctx context.Context, kafkaVayload *kafkav1.MatchEventPayload) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PublishMatchEvent", ctx, matchEvent)
+	ret := m.ctrl.Call(m, "PublishMatchEvent", ctx, kafkaVayload)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // PublishMatchEvent indicates an expected call of PublishMatchEvent.
-func (mr *MockMatchPublisherMockRecorder) PublishMatchEvent(ctx, matchEvent interface{}) *gomock.Call {
+func (mr *MockMatchPublisherMockRecorder) PublishMatchEvent(ctx, kafkaVayload interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PublishMatchEvent", reflect.TypeOf((*MockMatchPublisher)(nil).PublishMatchEvent), ctx, matchEvent)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PublishMatchEvent", reflect.TypeOf((*MockMatchPublisher)(nil).PublishMatchEvent), ctx, kafkaVayload)
 }

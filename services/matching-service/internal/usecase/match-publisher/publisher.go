@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhammadchandra19/exchange/pkg/errors"
 	"github.com/muhammadchandra19/exchange/pkg/logger"
+	pb "github.com/muhammadchandra19/exchange/proto/go/kafka/v1"
 	matchpublisherv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/match-publisher/v1"
 	"github.com/muhammadchandra19/exchange/services/matching-service/pkg/config"
 	"github.com/segmentio/kafka-go"
@@ -30,9 +31,9 @@ func NewPublisher(config config.MatchPublisherConfig, logger logger.Logger) *Pub
 }
 
 // PublishMatchEvent publishes a match event to the Kafka topic.
-func (p *Publisher) PublishMatchEvent(ctx context.Context, matchEvent *matchpublisherv1.MatchEvent) error {
+func (p *Publisher) PublishMatchEvent(ctx context.Context, matchEvent *pb.MatchEventPayload) error {
 	msg := kafka.Message{
-		Value: matchEvent.ToBytes(),
+		Value: matchpublisherv1.ToBytes(matchEvent),
 	}
 
 	if err := p.kafkaWriter.WriteMessages(ctx, msg); err != nil {

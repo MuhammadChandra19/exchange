@@ -17,37 +17,40 @@ plugins:
     opt: 
       - paths=source_relative
 
-  # gRPC-Gateway (only for public services)
+  # gRPC-Gateway (for all modules - we'll filter manually)
   - plugin: buf.build/grpc-ecosystem/gateway
     out: go
     opt:
       - paths=source_relative
       - allow_delete_body=true
-    include:
-      - modules
-    exclude:
-      - modules/*/v*/private    # 🚫 No gateway for private services
 
-  # OpenAPI generation (only for public services)
-  - plugin: buf.build/grpc-ecosystem/openapiv2
-    out: openapiv3
-    opt:
-      - logtostderr=true
-      - generate_unbound_methods=true
-      - allow_merge=true
-      - merge_file_name=api
-      - allow_delete_body=true
-      - include_package_in_tags=true
-      - use_go_templates=true
-      - separate_tag_files=true    # 📁 Generate separate files per service
-    include:
-      - modules                    # ✅ Include all modules
-    exclude:
-      - modules/*/v*/private       # 🚫 Exclude private services
-      - modules/*/v*/shared        # 🚫 Exclude shared (non-service) protos
+  # OpenAPI generation (for all modules - we'll filter manually)
+  # - plugin: buf.build/grpc-ecosystem/openapiv2
+  #   out: openapi
+  #   opt:
+  #     - logtostderr=true
+  #     - generate_unbound_methods=true
+  #     - allow_merge=true
+  #     - merge_file_name=api
+  #     - allow_delete_body=true
+  #     - include_package_in_tags=true  
+  #   # include:
+    #   - modules
+    # exclude:
+    #   - modules/*/v*/private
+    #   - modules/*/v*/shared
+    #   - core/*
 
-  # TypeScript generation (all services)
+  # TypeScript generation
   - plugin: buf.build/connectrpc/es
     out: ts
     opt: 
       - target=ts
+      - import_extension=none
+
+  # TypeScript types
+  - plugin: buf.build/bufbuild/es  
+    out: ts
+    opt:
+      - target=ts
+      - import_extension=none

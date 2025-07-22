@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/muhammadchandra19/exchange/pkg/logger"
-	orderbookv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/orderbook/v1"
+	pb "github.com/muhammadchandra19/exchange/proto/go/kafka/v1"
 	"github.com/muhammadchandra19/exchange/services/matching-service/pkg/config"
 	"github.com/segmentio/kafka-go"
 )
@@ -53,23 +53,23 @@ func (r Reader) SetOffset(offset int64) error {
 }
 
 // ReadMessage reads a message from the Kafka topic and parses it as an Order.
-func (r Reader) ReadMessage(ctx context.Context) (kafka.Message, orderbookv1.PlaceOrderRequest, error) {
+func (r Reader) ReadMessage(ctx context.Context) (kafka.Message, pb.PlaceOrderPayload, error) {
 	msg, err := r.kafkaReader.ReadMessage(ctx)
 	if err != nil {
 		r.logError(err, "ReadMessage")
-		return kafka.Message{Offset: 0}, orderbookv1.PlaceOrderRequest{}, err
+		return kafka.Message{Offset: 0}, pb.PlaceOrderPayload{}, err
 	}
 
-	var order orderbookv1.PlaceOrderRequest
+	var order pb.PlaceOrderPayload
 	if err := json.Unmarshal(msg.Value, &order); err != nil {
 		r.logError(err, "UnmarshalOrder")
-		return kafka.Message{Offset: 0}, orderbookv1.PlaceOrderRequest{}, err
+		return kafka.Message{Offset: 0}, pb.PlaceOrderPayload{}, err
 	}
 
 	r.logger.Info("ReadMessage",
 		logger.Field{
 			Key:   "userID",
-			Value: order.UserID,
+			Value: order.UserId,
 		},
 		logger.Field{
 			Key:   "size",

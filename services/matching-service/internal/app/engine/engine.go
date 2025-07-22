@@ -178,8 +178,10 @@ func (e *Engine) runOrderProcessor() {
 				})
 			}
 
+			obRequest := orderbookv1.PlaceOrderRequest{}
+
 			// Process order immediately
-			if err := e.processOrder(&orderRequest); err != nil {
+			if err := e.processOrder(obRequest.FromKafkaPayload(&orderRequest)); err != nil {
 				e.logger.ErrorContext(e.ctx, err, logger.Field{
 					Key:   "action",
 					Value: "process_order",
@@ -261,9 +263,8 @@ func (e *Engine) logMatches(matches []orderbookv1.Match, order *orderbookv1.Orde
 
 	// Log each individual match
 	for i, match := range matches {
-		matchEvent := matchpublisherv1.MatchEvent{}
-		matchEvent.CreateFromMatch(&match, order)
-		if err := e.matchPublisher.PublishMatchEvent(e.ctx, &matchEvent); err != nil {
+		matchEvent := matchpublisherv1.CreateFromMatch(&match, order)
+		if err := e.matchPublisher.PublishMatchEvent(e.ctx, matchEvent); err != nil {
 			e.logger.ErrorContext(e.ctx, err, logger.Field{
 				Key:   "action",
 				Value: "publish_match_event",

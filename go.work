@@ -4,7 +4,8 @@ use (
 	./pkg/errors
 	./pkg/logger
 	./pkg/redis
-	./services/matching-service
-	./services/market-data-service
 	./pkg/util
+	./proto/go
+	./services/market-data-service
+	./services/matching-service
 )
