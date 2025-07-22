@@ -1,0 +1,23 @@
+version: v1
+name: buf.build/muhammadchandra19/exchange-proto
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/grpc-ecosystem/grpc-gateway
+  - buf.build/protocolbuffers/wellknowntypes
+
+breaking:
+  use:
+    - FILE
+  except:
+    - EXTENSION_NO_DELETE
+    - FIELD_NO_DELETE
+
+lint:
+  use:
+    - DEFAULT
+  except:
+    - UNARY_RPC
+    - SERVICE_SUFFIX
+    - PACKAGE_DIRECTORY_MATCH
+  ignore:
+    - third_party

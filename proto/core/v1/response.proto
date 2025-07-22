@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package core.v1;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/generated/go/core/v1";
+
+// Standard API response wrapper
+message ApiResponse {
+  bool success = 1;
+  string message = 2;
+  google.protobuf.Any data = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  string request_id = 5;
+  ResponseMetadata metadata = 6;
+}
+
+// Response metadata
+message ResponseMetadata {
+  int32 total_count = 1;
+  int32 page_size = 2;
+  int32 current_page = 3;
+  bool has_next_page = 4;
+  bool has_previous_page = 5;
+}
+
+// Pagination request
+message PaginationRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  string sort_by = 3;
+  string sort_order = 4; // "asc" or "desc"
+}

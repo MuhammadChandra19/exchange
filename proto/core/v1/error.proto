@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package core.v1;
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/generated/go/core/v1";
+
+// Standard error response
+message ErrorResponse {
+  string code = 1;
+  string message = 2;
+  string details = 3;
+  int64 timestamp = 4;
+  string request_id = 5;
+}
+
+// Error codes
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  ERROR_CODE_TIMEOUT = 1;
+  ERROR_CODE_FORBIDDEN = 2;
+  ERROR_CODE_UNAUTHORIZED = 3;
+  ERROR_CODE_SERVER_ERROR = 4;
+  ERROR_CODE_NOT_FOUND = 5;
+  ERROR_CODE_INVALID_REQUEST = 6;
+}

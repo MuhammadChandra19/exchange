@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package core.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/generated/go/core/v1";
+
+// Service-level annotations
+message ServiceDescriptor {
+  repeated string possible_error_codes = 1;
+  repeated string common_error_codes = 2;
+  repeated ErrorExample error_examples = 3;
+  repeated PathPrefix path_prefixes = 4;
+}
+
+message ErrorExample {
+  ErrorDetail error = 1;
+}
+
+message ErrorDetail {
+  int32 grpc_code = 1;
+  repeated ErrorDetailInfo details = 2;
+}
+
+message ErrorDetailInfo {
+  ErrorInfo detail = 1;
+}
+
+message ErrorInfo {
+  string message = 1;
+  string code = 2;
+}
+
+message PathPrefix {
+  string path = 1;
+}
+
+extend google.protobuf.ServiceOptions {
+  ServiceDescriptor service_descriptor = 50001;
+}
+
+extend google.protobuf.MethodOptions {
+  string method_descriptor = 50002;
+}
+
+extend google.protobuf.MessageOptions {
+  string message_descriptor = 50003;
+}
+
+extend google.protobuf.FieldOptions {
+  string field_descriptor = 50004;
+}
