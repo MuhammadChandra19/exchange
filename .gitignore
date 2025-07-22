@@ -1,6 +1,11 @@
-vendor
 .env*
 
-.idea/
+proto/go/*
+proto/ts/*
+
+!proto/go/go.mod
+!proto/go/go.sum
+!proto/ts/package.json
+!proto/ts/tsconfig.json
+
 tmp/
-cover.out
