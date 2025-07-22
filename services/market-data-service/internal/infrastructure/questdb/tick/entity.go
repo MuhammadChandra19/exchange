@@ -1,4 +1,4 @@
-package v1
+package tick
 
 import (
 	"time"
@@ -13,8 +13,8 @@ type Tick struct {
 	Side      string // "buy" or "sell"
 }
 
-// TickFilter represents the filter criteria for tick data.
-type TickFilter struct {
+// Filter represents the filter criteria for tick data.
+type Filter struct {
 	Symbol string
 	From   *time.Time
 	To     *time.Time

@@ -1,11 +1,12 @@
-package v1
+package order
 
 import (
 	"context"
 )
 
+// OrderRepository is the interface for the order repository.
+//
 //go:generate mockgen -source=repository.go -destination=mock/repository_mock.go -package=mock
-
 type OrderRepository interface {
 	// Order management
 	Store(ctx context.Context, order *Order) error

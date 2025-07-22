@@ -1,9 +1,10 @@
-package v1
+package order
 
 import (
 	"time"
 )
 
+// Order represents a single order.
 type Order struct {
 	ID        string
 	Timestamp time.Time
@@ -16,6 +17,7 @@ type Order struct {
 	UserID    string
 }
 
+// OrderEvent represents a single order event.
 type OrderEvent struct {
 	ID        string
 	Timestamp time.Time
@@ -31,6 +33,7 @@ type OrderEvent struct {
 	NewQuantity *int64
 }
 
+// OrderFilter represents the filter criteria for order data.
 type OrderFilter struct {
 	Symbol string
 	Side   string
@@ -42,13 +45,14 @@ type OrderFilter struct {
 	Offset int
 }
 
-// Order book level data
+// OrderBookLevel represents a single order book level.
 type OrderBookLevel struct {
 	Price    float64
 	Quantity int64
 	Orders   int64 // Number of orders at this level
 }
 
+// OrderBook represents a single order book.
 type OrderBook struct {
 	Symbol    string
 	Timestamp time.Time
