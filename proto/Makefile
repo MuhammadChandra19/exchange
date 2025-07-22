@@ -37,9 +37,7 @@ generate: clean copy-go-mod
 	
 	@echo "🔧 Generating mocks..."
 	@$(MAKE) mocks
-	
-	@echo "🏁 Running post-generation steps..."
-	@$(MAKE) post-generate
+
 	
 	@echo "✅ Generation complete!"
 
@@ -55,11 +53,6 @@ mocks:
 	@chmod +x scripts/generate-mocks.sh
 	@./scripts/generate-mocks.sh
 
-# Post-generation steps (matching your script's end)
-post-generate:
-	@echo "🔧 Running post-generation steps..."
-	@chmod +x scripts/post-generate.sh
-	@./scripts/post-generate.sh
 
 
 # Clean generated files

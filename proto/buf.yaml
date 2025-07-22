@@ -4,6 +4,7 @@ deps:
   - buf.build/googleapis/googleapis
   - buf.build/grpc-ecosystem/grpc-gateway
   - buf.build/protocolbuffers/wellknowntypes
+  - buf.build/elide/openapi
 
 breaking:
   use:
@@ -25,5 +26,4 @@ lint:
     - UNARY_RPC
     - SERVICE_SUFFIX
     - PACKAGE_DIRECTORY_MATCH
-  ignore:
-    - third_party
+

@@ -6,56 +6,56 @@ import (
 
 // Order represents a single order.
 type Order struct {
-	ID        string
-	Timestamp time.Time
-	Symbol    string
-	Side      string // "buy" or "sell"
-	Price     float64
-	Quantity  int64
-	Type      string // "limit", "market", "stop"
-	Status    string // "active", "filled", "cancelled", "partial"
-	UserID    string
+	ID        string    `json:"id"`
+	Timestamp time.Time `json:"timestamp"`
+	Symbol    string    `json:"symbol"`
+	Side      string    `json:"side"`
+	Price     float64   `json:"price"`
+	Quantity  int64     `json:"quantity"`
+	Type      string    `json:"type"`
+	Status    string    `json:"status"`
+	UserID    string    `json:"userID"`
 }
 
 // OrderEvent represents a single order event.
 type OrderEvent struct {
-	ID        string
-	Timestamp time.Time
-	OrderID   string
-	EventType string // "placed", "cancelled", "modified", "filled", "partial_fill"
-	Symbol    string
-	Side      string
-	Price     float64
-	Quantity  int64
-	UserID    string
+	ID        string    `json:"id"`
+	Timestamp time.Time `json:"timestamp"`
+	OrderID   string    `json:"orderID"`
+	EventType string    `json:"eventType"` // "placed", "cancelled", "modified", "filled", "partial_fill"
+	Symbol    string    `json:"symbol"`
+	Side      string    `json:"side"`
+	Price     float64   `json:"price"`
+	Quantity  int64     `json:"quantity"`
+	UserID    string    `json:"userID"`
 	// For modifications
-	NewPrice    *float64
-	NewQuantity *int64
+	NewPrice    *float64 `json:"newPrice"`
+	NewQuantity *int64   `json:"newQuantity"`
 }
 
 // OrderFilter represents the filter criteria for order data.
 type OrderFilter struct {
-	Symbol string
-	Side   string
-	Status string
-	UserID string
-	From   *time.Time
-	To     *time.Time
-	Limit  int
-	Offset int
+	Symbol string     `json:"symbol"`
+	Side   string     `json:"side"`
+	Status string     `json:"status"`
+	UserID string     `json:"userID"`
+	From   *time.Time `json:"from"`
+	To     *time.Time `json:"to"`
+	Limit  int        `json:"limit"`
+	Offset int        `json:"offset"`
 }
 
 // OrderBookLevel represents a single order book level.
 type OrderBookLevel struct {
-	Price    float64
-	Quantity int64
-	Orders   int64 // Number of orders at this level
+	Price    float64 `json:"price"`
+	Quantity int64   `json:"quantity"`
+	Orders   int64   `json:"orders"` // Number of orders at this level
 }
 
 // OrderBook represents a single order book.
 type OrderBook struct {
-	Symbol    string
-	Timestamp time.Time
-	Bids      []OrderBookLevel
-	Asks      []OrderBookLevel
+	Symbol    string           `json:"symbol"`
+	Timestamp time.Time        `json:"timestamp"`
+	Bids      []OrderBookLevel `json:"bids"`
+	Asks      []OrderBookLevel `json:"asks"`
 }

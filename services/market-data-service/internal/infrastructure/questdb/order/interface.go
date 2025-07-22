@@ -14,6 +14,7 @@ type OrderRepository interface {
 	Update(ctx context.Context, orderID string, updates map[string]interface{}) error
 	GetByID(ctx context.Context, orderID string) (*Order, error)
 	GetByFilter(ctx context.Context, filter OrderFilter) ([]*Order, error)
+	Delete(ctx context.Context, orderID string) error
 
 	// Order events
 	StoreEvent(ctx context.Context, event *OrderEvent) error

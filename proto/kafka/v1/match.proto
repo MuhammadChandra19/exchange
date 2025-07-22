@@ -5,12 +5,12 @@ package kafka.v1;
 option go_package = "github.com/muhammadchandra19/exchange/proto/kafka/v1";
 
 message MatchEventPayload {
-  string match_id = 1 [ json_name = "matchID" ];
+  string matchID = 1 [ json_name = "matchID" ];
   google.protobuf.Timestamp timestamp = 2 [ json_name = "timestamp" ];
   string symbol = 3 [ json_name = "symbol" ];
   double price = 4 [ json_name = "price" ];
   double volume = 5 [ json_name = "volume" ];
-  string buy_order_id = 6 [ json_name = "buyOrderID" ];
-  string sell_order_id = 7 [ json_name = "sellOrderID" ];
-  string taker_side = 8 [ json_name = "takerSide" ];
+  string buyOrderID = 6 [ json_name = "buyOrderID" ];
+  string sellOrderID = 7 [ json_name = "sellOrderID" ];
+  string takerSide = 8 [ json_name = "takerSide" ];
 }

@@ -3,6 +3,10 @@ managed:
   enabled: true
   go_package_prefix:
     default: github.com/muhammadchandra19/exchange/proto/go
+    except:
+      - buf.build/googleapis/googleapis
+      - buf.build/elide/openapi
+      - buf.build/protocolbuffers/wellknowntypes
 
 plugins:
   # Go protobuf generation
@@ -46,11 +50,9 @@ plugins:
     out: ts
     opt: 
       - target=ts
-      - import_extension=none
 
   # TypeScript types
   - plugin: buf.build/bufbuild/es  
     out: ts
     opt:
       - target=ts
-      - import_extension=none

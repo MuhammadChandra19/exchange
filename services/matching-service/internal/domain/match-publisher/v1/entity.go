@@ -12,17 +12,17 @@ import (
 // CreateFromMatch creates a match event from a match and an order.
 func CreateFromMatch(match *orderbookv1.Match, order *orderbookv1.Order) *pb.MatchEventPayload {
 	matchEvent := &pb.MatchEventPayload{
-		MatchId:   order.ID,
+		MatchID:   order.ID,
 		Timestamp: timestamppb.New(time.Unix(order.Timestamp, 0)),
 	}
 
 	if order.Bid {
-		matchEvent.BuyOrderId = order.ID
-		matchEvent.SellOrderId = match.Ask.ID
+		matchEvent.BuyOrderID = order.ID
+		matchEvent.SellOrderID = match.Ask.ID
 		matchEvent.TakerSide = "buy"
 	} else {
-		matchEvent.BuyOrderId = match.Bid.ID
-		matchEvent.SellOrderId = order.ID
+		matchEvent.BuyOrderID = match.Bid.ID
+		matchEvent.SellOrderID = order.ID
 		matchEvent.TakerSide = "sell"
 	}
 

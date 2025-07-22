@@ -2,6 +2,11 @@
 version: v1
 deps:
   - remote: buf.build
+    owner: elide
+    repository: openapi
+    commit: 0fc47b872ca044c782367f900f8eaf64
+    digest: shake256:ae6eb1c05e10141d35184e7433bd37c97d1ef422bf2496892974de8a65741cd0e18e43f1d70d0d28fb387d996a58d55147c17f0dfe7ee70e64a26c191255d6ab
+  - remote: buf.build
     owner: googleapis
     repository: googleapis
     commit: 61b203b9a9164be9a834f58c37be6f62
