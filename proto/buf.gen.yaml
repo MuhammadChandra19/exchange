@@ -3,25 +3,21 @@ managed:
   enabled: true
   go_package_prefix:
     default: github.com/muhammadchandra19/exchange/proto/go
-    except:
-      - buf.build/googleapis/googleapis
-      - buf.build/grpc-ecosystem/grpc-gateway
 
 plugins:
-  # Core Go protobuf generation (matches your --go_out)
+  # Go protobuf generation
   - plugin: buf.build/protocolbuffers/go
     out: go
     opt: 
       - paths=source_relative
 
-  # Go gRPC generation (matches your --go-grpc_out)
+  # Go gRPC generation
   - plugin: buf.build/grpc/go
     out: go
     opt: 
       - paths=source_relative
 
-  # gRPC-Gateway generation (matches your --grpc-gateway_out)
-  # Only for modules, not core/common
+  # gRPC-Gateway (only for public services)
   - plugin: buf.build/grpc-ecosystem/gateway
     out: go
     opt:
@@ -29,31 +25,29 @@ plugins:
       - allow_delete_body=true
     include:
       - modules
+    exclude:
+      - modules/*/v*/private    # 🚫 No gateway for private services
 
-  # OpenAPI generation for public services
+  # OpenAPI generation (only for public services)
   - plugin: buf.build/grpc-ecosystem/openapiv2
-    out: openapi
+    out: openapiv3
     opt:
       - logtostderr=true
       - generate_unbound_methods=true
       - allow_merge=true
       - merge_file_name=api
       - allow_delete_body=true
+      - include_package_in_tags=true
+      - use_go_templates=true
+      - separate_tag_files=true    # 📁 Generate separate files per service
     include:
-      - modules
+      - modules                    # ✅ Include all modules
     exclude:
-      - modules/*/v*/private  # Exclude private services from OpenAPI
+      - modules/*/v*/private       # 🚫 Exclude private services
+      - modules/*/v*/shared        # 🚫 Exclude shared (non-service) protos
 
-  # TypeScript generation
+  # TypeScript generation (all services)
   - plugin: buf.build/connectrpc/es
     out: ts
     opt: 
       - target=ts
-      - import_extension=none
-
-  # TypeScript types
-  - plugin: buf.build/bufbuild/es  
-    out: ts
-    opt:
-      - target=ts
-      - import_extension=none
