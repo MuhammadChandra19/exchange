@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/muhammadchandra19/exchange/pkg/logger"
+	matchpublisherv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/match-publisher/v1"
 	orderreaderv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/order-reader/v1"
 	orderbookv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/orderbook/v1"
 	snapshotv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/snapshot/v1"
@@ -16,11 +17,12 @@ import (
 // Engine is the simplified main engine for processing orders and managing the order book.
 type Engine struct {
 	// Core components
-	orderbook     orderbookv1.Orderbook
-	orderReader   orderreaderv1.OrderReader
-	snapshotStore snapshotv1.Store
-	logger        *logger.Logger
-	config        *config.Config
+	orderbook      orderbookv1.Orderbook
+	orderReader    orderreaderv1.OrderReader
+	matchPublisher matchpublisherv1.MatchPublisher
+	snapshotStore  snapshotv1.Store
+	logger         *logger.Logger
+	config         *config.Config
 
 	// Simple state management with mutex instead of atomics
 	mu                 sync.RWMutex
@@ -46,10 +48,11 @@ func NewEngine(
 	orderbook orderbookv1.Orderbook,
 	orderReader orderreaderv1.OrderReader,
 	snapshotStore snapshotv1.Store,
+	matchPublisher matchpublisherv1.MatchPublisher,
 	logger *logger.Logger,
 	config *config.Config,
 ) *Engine {
-	return NewEngineWithOptions(orderbook, orderReader, snapshotStore, logger, config, DefaultEngineOptions())
+	return NewEngineWithOptions(orderbook, orderReader, snapshotStore, matchPublisher, logger, config, DefaultEngineOptions())
 }
 
 // NewEngineWithOptions creates a new engine with custom options
@@ -57,16 +60,18 @@ func NewEngineWithOptions(
 	orderbook orderbookv1.Orderbook,
 	orderReader orderreaderv1.OrderReader,
 	snapshotStore snapshotv1.Store,
+	matchPublisher matchpublisherv1.MatchPublisher,
 	logger *logger.Logger,
 	config *config.Config,
 	options *Options,
 ) *Engine {
 	e := &Engine{
-		orderbook:     orderbook,
-		orderReader:   orderReader,
-		snapshotStore: snapshotStore,
-		logger:        logger,
-		config:        config,
+		orderbook:      orderbook,
+		orderReader:    orderReader,
+		snapshotStore:  snapshotStore,
+		matchPublisher: matchPublisher,
+		logger:         logger,
+		config:         config,
 
 		snapshotInterval:    options.SnapshotInterval,
 		snapshotOffsetDelta: options.SnapshotOffsetDelta,
@@ -231,7 +236,7 @@ func (e *Engine) processOrder(orderRequest *orderbookv1.PlaceOrderRequest) error
 
 		// SIMPLIFIED: Just log matches directly instead of using channel
 		if len(matches) > 0 {
-			e.logMatches(matches)
+			e.logMatches(matches, order)
 		}
 	case orderbookv1.OrderTypeCancel:
 		err := e.orderbook.CancelOrder(orderRequest.OrderID)
@@ -243,7 +248,7 @@ func (e *Engine) processOrder(orderRequest *orderbookv1.PlaceOrderRequest) error
 }
 
 // logMatches logs the matches and updates statistics
-func (e *Engine) logMatches(matches []orderbookv1.Match) {
+func (e *Engine) logMatches(matches []orderbookv1.Match, order *orderbookv1.Order) {
 	e.matchesMutex.Lock()
 	e.totalMatches += int64(len(matches))
 	currentTotal := e.totalMatches
@@ -256,6 +261,14 @@ func (e *Engine) logMatches(matches []orderbookv1.Match) {
 
 	// Log each individual match
 	for i, match := range matches {
+		matchEvent := matchpublisherv1.MatchEvent{}
+		matchEvent.CreateFromMatch(&match, order)
+		if err := e.matchPublisher.PublishMatchEvent(e.ctx, &matchEvent); err != nil {
+			e.logger.ErrorContext(e.ctx, err, logger.Field{
+				Key:   "action",
+				Value: "publish_match_event",
+			})
+		}
 		e.logger.Info("Trade executed",
 			logger.Field{Key: "matchIndex", Value: i + 1},
 			logger.Field{Key: "price", Value: match.Price},

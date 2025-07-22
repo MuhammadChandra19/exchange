@@ -10,6 +10,7 @@ import (
 	"github.com/muhammadchandra19/exchange/pkg/logger"
 	"github.com/muhammadchandra19/exchange/pkg/redis"
 	app "github.com/muhammadchandra19/exchange/services/matching-service/internal/app/engine"
+	matchpublisher "github.com/muhammadchandra19/exchange/services/matching-service/internal/usecase/match-publisher"
 	orderreader "github.com/muhammadchandra19/exchange/services/matching-service/internal/usecase/order-reader"
 	orderbook "github.com/muhammadchandra19/exchange/services/matching-service/internal/usecase/orderbook"
 	snapshot "github.com/muhammadchandra19/exchange/services/matching-service/internal/usecase/snapshot"
@@ -64,10 +65,12 @@ func main() {
 	ob := orderbook.NewOrderbook()
 	oReader := orderreader.NewReader(cfg.KafkaConfig, *log)
 	snapshotStore := snapshot.NewSnapshotStore(rclient, cfg.Pair, log)
+	matchPublisher := matchpublisher.NewPublisher(cfg.MatchPublisherConfig, *log)
 	engine := app.NewEngine(
 		ob,
 		oReader,
 		snapshotStore,
+		matchPublisher,
 		log,
 		cfg,
 	)

@@ -27,10 +27,16 @@ func Load[T any](cfg T) error {
 
 // Config holds the configuration for the application
 type Config struct {
-	Pair        string               `env:"PAIR,required"` // Trading pair, e.g., BTC/USD
-	KafkaConfig `envPrefix:"KAFKA_"` // Kafka configuration
-	RedisConfig `envPrefix:"REDIS_"` // Redis configuration
+	Pair                 string                         `env:"PAIR,required"` // Trading pair, e.g., BTC/USD
+	KafkaConfig          `envPrefix:"KAFKA_"`           // Kafka configuration
+	RedisConfig          `envPrefix:"REDIS_"`           // Redis configuration
+	MatchPublisherConfig `envPrefix:"MATCH_PUBLISHER_"` // Match publisher configuration
+}
 
+// MatchPublisherConfig holds the configuration for the match publisher.
+type MatchPublisherConfig struct {
+	Topic   string   `env:"TOPIC" envDefault:"match_events"`
+	Brokers []string `env:"BROKER" envDefault:"localhost:9092"`
 }
 
 // KafkaConfig holds the configuration for Kafka consumer and producer.
