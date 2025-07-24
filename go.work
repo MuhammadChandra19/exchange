@@ -2,11 +2,13 @@ go 1.24.4
 
 use (
 	./pkg/errors
+	./pkg/grpclib
+	./pkg/httplib
 	./pkg/logger
 	./pkg/redis
 	./pkg/util
 	./proto
+	./rpc-gateway
 	./services/market-data-service
 	./services/matching-service
-	./rpc-gateway
 )

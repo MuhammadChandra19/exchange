@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 
+	"github.com/muhammadchandra19/exchange/pkg/grpclib/health"
 	"github.com/muhammadchandra19/exchange/pkg/logger"
 	orderPublic "github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/public"
 	tickPublic "github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/public"
@@ -50,11 +51,15 @@ func NewGrpcServer(ctx context.Context, config config.AppConfig) (*GrpcServer, e
 		rpc:        bootstrap.RPC{},
 	}
 
+	// Register health service
+	healthService := health.NewServer()
+	healthService.Register(server.Server)
+
 	server.initDB(ctx)
 
 	server.registerRepository()
 	server.registerUsecase()
-	server.registerRPC()
+	server.registerPublicRPC()
 
 	server.registerGrpcServer()
 
@@ -90,7 +95,7 @@ func (s *GrpcServer) registerUsecase() {
 	s.usecase.TickUsecase = tickUc.NewUsecase(s.repository.TickRepository, s.logger)
 }
 
-func (s *GrpcServer) registerRPC() {
+func (s *GrpcServer) registerPublicRPC() {
 	s.rpc.OrderRPC = rpc.NewOrderRPC(s.usecase.OrderUsecase, s.logger)
 	s.rpc.TickRPC = rpc.NewTickRPC(s.usecase.TickUsecase, s.logger)
 }
