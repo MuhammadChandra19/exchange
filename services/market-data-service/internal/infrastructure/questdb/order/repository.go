@@ -143,20 +143,38 @@ func (r *Repository) StoreEvent(ctx context.Context, event *OrderEvent) error {
 }
 
 // GetActiveOrdersBySymbol gets active orders by symbol and side.
-func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string) ([]*Order, error) {
+func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string, limit int, offset int) ([]*Order, error) {
 	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id
-			  FROM orders 
-			  WHERE symbol = $1 AND side = $2 AND status = 'active'
-			  ORDER BY price DESC, timestamp ASC` // Best price first, then FIFO
+			  FROM orders WHERE status = 'active'`
 
-	if side == "sell" {
-		query = `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id
-				 FROM orders 
-				 WHERE symbol = $1 AND side = $2 AND status = 'active'
-				 ORDER BY price ASC, timestamp ASC` // Best price first (lowest for sells)
+	args := []interface{}{}
+	argIndex := 1
+
+	if symbol != "" {
+		query += fmt.Sprintf(" AND symbol = $%d", argIndex)
+		args = append(args, symbol)
+		argIndex++
 	}
 
-	rows, err := r.client.Query(ctx, query, symbol, side)
+	if side != "" {
+		query += fmt.Sprintf(" AND side = $%d", argIndex)
+		args = append(args, side)
+		argIndex++
+	}
+
+	if limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", argIndex)
+		args = append(args, limit)
+		argIndex++
+	}
+
+	if offset > 0 {
+		query += fmt.Sprintf(" OFFSET $%d", argIndex)
+		args = append(args, offset)
+		argIndex++
+	}
+
+	rows, err := r.client.Query(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query active orders: %w", err)
 	}

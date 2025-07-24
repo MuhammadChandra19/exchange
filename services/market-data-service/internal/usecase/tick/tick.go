@@ -12,11 +12,11 @@ import (
 // Usecase is the usecase for the tick.
 type Usecase struct {
 	tickRepository tick.TickRepository
-	logger         logger.Logger
+	logger         logger.Interface
 }
 
 // NewUsecase creates a new tick usecase.
-func NewUsecase(tickRepository tick.TickRepository, logger logger.Logger) *Usecase {
+func NewUsecase(tickRepository tick.TickRepository, logger logger.Interface) *Usecase {
 	return &Usecase{tickRepository: tickRepository, logger: logger}
 }
 

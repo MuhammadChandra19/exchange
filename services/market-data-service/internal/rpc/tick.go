@@ -13,24 +13,24 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// TickService is the service for the tick API.
-type TickService struct {
+// TickRPC is the service for the tick API.
+type TickRPC struct {
 	pb.UnimplementedTickServiceServer
 
 	usecase tick.Usecase
 	logger  logger.Interface
 }
 
-// NewTickService creates a new TickService.
-func NewTickService(usecase tick.Usecase, logger logger.Interface) *TickService {
-	return &TickService{
+// NewTickRPC creates a new TickRPC.
+func NewTickRPC(usecase tick.Usecase, logger logger.Interface) *TickRPC {
+	return &TickRPC{
 		usecase: usecase,
 		logger:  logger,
 	}
 }
 
 // GetLatestTick gets the latest tick for a given symbol.
-func (s *TickService) GetLatestTick(ctx context.Context, req *pb.GetLatestTickRequest) (*pb.GetLatestTickResponse, error) {
+func (s *TickRPC) GetLatestTick(ctx context.Context, req *pb.GetLatestTickRequest) (*pb.GetLatestTickResponse, error) {
 	res, err := s.usecase.GetLatestTick(ctx, req.Symbol)
 	if err != nil {
 		s.logger.Error(err, logger.Field{
@@ -56,7 +56,7 @@ func (s *TickService) GetLatestTick(ctx context.Context, req *pb.GetLatestTickRe
 }
 
 // GetTickVolume gets the volume for a given symbol.
-func (s *TickService) GetTickVolume(ctx context.Context, req *pb.GetTickVolumeRequest) (*pb.GetTickVolumeResponse, error) {
+func (s *TickRPC) GetTickVolume(ctx context.Context, req *pb.GetTickVolumeRequest) (*pb.GetTickVolumeResponse, error) {
 	from := req.From.AsTime()
 	to := req.To.AsTime()
 	volume, err := s.usecase.GetTickVolume(ctx, req.Symbol, from, to)
@@ -84,7 +84,7 @@ func (s *TickService) GetTickVolume(ctx context.Context, req *pb.GetTickVolumeRe
 }
 
 // GetTicks gets the ticks for a given symbol.
-func (s *TickService) GetTicks(ctx context.Context, req *pb.GetTicksRequest) (*pb.GetTicksResponse, error) {
+func (s *TickRPC) GetTicks(ctx context.Context, req *pb.GetTicksRequest) (*pb.GetTicksResponse, error) {
 	from := req.From.AsTime()
 	to := req.To.AsTime()
 	ticks, err := s.usecase.GetTicks(ctx, tickInfra.Filter{

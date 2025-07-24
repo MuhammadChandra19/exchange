@@ -70,7 +70,7 @@ func TestTick_GetLatestTick(t *testing.T) {
 
 			testCase.mockFn(t, testCase.testParams, tickUc, logger)
 
-			res, err := NewTickService(tickUc, logger).GetLatestTick(context.Background(), testCase.testParams)
+			res, err := NewTickRpc(tickUc, logger).GetLatestTick(context.Background(), testCase.testParams)
 			testCase.assertFn(t, res, err)
 		})
 	}
@@ -129,7 +129,7 @@ func TestTick_GetTickVolume(t *testing.T) {
 
 			testCase.mockFn(t, testCase.testParams, tickUc, logger)
 
-			res, err := NewTickService(tickUc, logger).GetTickVolume(context.Background(), testCase.testParams)
+			res, err := NewTickRpc(tickUc, logger).GetTickVolume(context.Background(), testCase.testParams)
 			testCase.assertFn(t, res, err)
 		})
 	}
@@ -211,7 +211,7 @@ func TestTick_GetTicks(t *testing.T) {
 
 			testCase.mockFn(t, testCase.testParams, tickUc, logger)
 
-			res, err := NewTickService(tickUc, logger).GetTicks(context.Background(), testCase.testParams)
+			res, err := NewTickRpc(tickUc, logger).GetTicks(context.Background(), testCase.testParams)
 			testCase.assertFn(t, res, err)
 		})
 	}

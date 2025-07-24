@@ -11,11 +11,11 @@ import (
 // Usecase is the usecase for the order.
 type Usecase struct {
 	orderRepository order.OrderRepository
-	logger          logger.Logger
+	logger          logger.Interface
 }
 
 // NewUsecase creates a new order usecase.
-func NewUsecase(orderRepository order.OrderRepository, logger logger.Logger) *Usecase {
+func NewUsecase(orderRepository order.OrderRepository, logger logger.Interface) *Usecase {
 	return &Usecase{orderRepository: orderRepository, logger: logger}
 }
 
