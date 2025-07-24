@@ -61,7 +61,11 @@ message GetLatestTickResponse {
   shared.Tick data = 6;
 }
 
-message GetTickVolumeRequest { string symbol = 1 [ json_name = "symbol" ]; }
+message GetTickVolumeRequest {
+  string symbol = 1 [ json_name = "symbol" ];
+  google.protobuf.Timestamp from = 2 [ json_name = "from" ];
+  google.protobuf.Timestamp to = 3 [ json_name = "to" ];
+}
 message GetTickVolumeResponse {
   string status = 1;
   string message = 2;
@@ -73,8 +77,8 @@ message GetTickVolumeResponse {
 
 message GetTicksRequest {
   string symbol = 1 [ json_name = "symbol" ];
-  string from = 2 [ json_name = "from" ];
-  string to = 3 [ json_name = "to" ];
+  google.protobuf.Timestamp from = 2 [ json_name = "from" ];
+  google.protobuf.Timestamp to = 3 [ json_name = "to" ];
   int32 limit = 4 [ json_name = "limit" ];
   int32 offset = 5 [ json_name = "offset" ];
 }

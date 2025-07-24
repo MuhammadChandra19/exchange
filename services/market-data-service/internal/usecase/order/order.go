@@ -38,8 +38,8 @@ func (u *Usecase) GetOrderByFilter(ctx context.Context, filter order.OrderFilter
 }
 
 // GetPairActiveOrders gets the active orders for a given symbol and side.
-func (u *Usecase) GetPairActiveOrders(ctx context.Context, symbol string, side string) ([]*order.Order, error) {
-	orders, err := u.orderRepository.GetActiveOrdersBySymbol(ctx, symbol, side)
+func (u *Usecase) GetPairActiveOrders(ctx context.Context, symbol string, side string, limit int, offset int) ([]*order.Order, error) {
+	orders, err := u.orderRepository.GetActiveOrdersBySymbol(ctx, symbol, side, limit, offset)
 	if err != nil {
 		return nil, errors.TracerFromError(err)
 	}

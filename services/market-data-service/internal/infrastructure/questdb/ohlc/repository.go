@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
-	ohlcdomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/ohlc/v1"
 	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
 )
 
@@ -22,7 +21,7 @@ func NewRepository(client questdb.QuestDBClient) *Repository {
 }
 
 // Store stores an OHLC data point.
-func (r *Repository) Store(ctx context.Context, ohlc *ohlcdomain.OHLC) error {
+func (r *Repository) Store(ctx context.Context, ohlc *OHLC) error {
 	query := `INSERT INTO ohlc (timestamp, symbol, interval, open, high, low, close, volume, trade_count) 
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
@@ -38,7 +37,7 @@ func (r *Repository) Store(ctx context.Context, ohlc *ohlcdomain.OHLC) error {
 }
 
 // StoreBatch stores a batch of OHLC data points.
-func (r *Repository) StoreBatch(ctx context.Context, ohlcs []*ohlcdomain.OHLC) error {
+func (r *Repository) StoreBatch(ctx context.Context, ohlcs []*OHLC) error {
 	if len(ohlcs) == 0 {
 		return nil
 	}
@@ -73,7 +72,7 @@ func (r *Repository) StoreBatch(ctx context.Context, ohlcs []*ohlcdomain.OHLC) e
 }
 
 // GetByFilter retrieves OHLC data points by filter.
-func (r *Repository) GetByFilter(ctx context.Context, filter ohlcdomain.OHLCFilter) ([]*ohlcdomain.OHLC, error) {
+func (r *Repository) GetByFilter(ctx context.Context, filter OHLCFilter) ([]*OHLC, error) {
 	query := "SELECT timestamp, symbol, interval, open, high, low, close, volume, trade_count FROM ohlc WHERE 1=1"
 	args := []interface{}{}
 	argIndex := 1
@@ -115,9 +114,9 @@ func (r *Repository) GetByFilter(ctx context.Context, filter ohlcdomain.OHLCFilt
 	}
 	defer rows.Close()
 
-	var ohlcs []*ohlcdomain.OHLC
+	var ohlcs []*OHLC
 	for rows.Next() {
-		ohlc := &ohlcdomain.OHLC{}
+		ohlc := &OHLC{}
 		err := rows.Scan(&ohlc.Timestamp, &ohlc.Symbol, &ohlc.Interval, &ohlc.Open,
 			&ohlc.High, &ohlc.Low, &ohlc.Close, &ohlc.Volume, &ohlc.TradeCount)
 		if err != nil {
@@ -134,14 +133,14 @@ func (r *Repository) GetByFilter(ctx context.Context, filter ohlcdomain.OHLCFilt
 }
 
 // GetLatest retrieves the latest OHLC data point.
-func (r *Repository) GetLatest(ctx context.Context, symbol, interval string) (*ohlcdomain.OHLC, error) {
+func (r *Repository) GetLatest(ctx context.Context, symbol, interval string) (*OHLC, error) {
 	query := `SELECT timestamp, symbol, interval, open, high, low, close, volume, trade_count
 			  FROM ohlc 
 			  WHERE symbol = $1 AND interval = $2 
 			  ORDER BY timestamp DESC 
 			  LIMIT 1`
 
-	ohlc := &ohlcdomain.OHLC{}
+	ohlc := &OHLC{}
 	err := r.client.QueryRow(ctx, query, symbol, interval).Scan(
 		&ohlc.Timestamp, &ohlc.Symbol, &ohlc.Interval, &ohlc.Open, &ohlc.High,
 		&ohlc.Low, &ohlc.Close, &ohlc.Volume, &ohlc.TradeCount)
@@ -157,7 +156,7 @@ func (r *Repository) GetLatest(ctx context.Context, symbol, interval string) (*o
 }
 
 // GetIntradayData retrieves intraday OHLC data points.
-func (r *Repository) GetIntradayData(ctx context.Context, symbol string, interval string, limit int) ([]*ohlcdomain.OHLC, error) {
+func (r *Repository) GetIntradayData(ctx context.Context, symbol string, interval string, limit int) ([]*OHLC, error) {
 	query := `SELECT timestamp, symbol, interval, open, high, low, close, volume, trade_count
 			  FROM ohlc 
 			  WHERE symbol = $1 AND interval = $2 
@@ -170,9 +169,9 @@ func (r *Repository) GetIntradayData(ctx context.Context, symbol string, interva
 	}
 	defer rows.Close()
 
-	var ohlcs []*ohlcdomain.OHLC
+	var ohlcs []*OHLC
 	for rows.Next() {
-		ohlc := &ohlcdomain.OHLC{}
+		ohlc := &OHLC{}
 		err := rows.Scan(&ohlc.Timestamp, &ohlc.Symbol, &ohlc.Interval, &ohlc.Open,
 			&ohlc.High, &ohlc.Low, &ohlc.Close, &ohlc.Volume, &ohlc.TradeCount)
 		if err != nil {

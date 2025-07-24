@@ -7,8 +7,10 @@ import (
 )
 
 // Usecase is the interface for the order usecase.
+//
+//go:generate mockgen -source=interface.go -destination=mock/usecase_mock.go -package=mock
 type Usecase interface {
-	GetPairActiveOrders(ctx context.Context, symbol string, side string) ([]*order.Order, error)
+	GetPairActiveOrders(ctx context.Context, symbol string, side string, limit int, offset int) ([]*order.Order, error)
 	GetEventsByOrderID(ctx context.Context, orderID string) ([]*order.OrderEvent, error)
 	GetOrder(ctx context.Context, orderID string) (*order.Order, error)
 	GetOrderBookSnapshot(ctx context.Context, symbol string, depth int) (*order.OrderBook, error)

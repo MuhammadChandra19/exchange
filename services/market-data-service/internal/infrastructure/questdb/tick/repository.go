@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	tickdomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/tick/v1"
 	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
 )
 
@@ -23,7 +22,7 @@ func NewRepository(client questdb.QuestDBClient) *Repository {
 }
 
 // Store stores a tick data point.
-func (r *Repository) Store(ctx context.Context, tick *tickdomain.Tick) error {
+func (r *Repository) Store(ctx context.Context, tick *Tick) error {
 	query := `INSERT INTO ticks (timestamp, symbol, price, volume, side) 
 			  VALUES ($1, $2, $3, $4, $5)`
 
@@ -38,7 +37,7 @@ func (r *Repository) Store(ctx context.Context, tick *tickdomain.Tick) error {
 }
 
 // StoreBatch stores a batch of tick data points.
-func (r *Repository) StoreBatch(ctx context.Context, ticks []*tickdomain.Tick) error {
+func (r *Repository) StoreBatch(ctx context.Context, ticks []*Tick) error {
 	if len(ticks) == 0 {
 		return nil
 	}
@@ -69,7 +68,7 @@ func (r *Repository) StoreBatch(ctx context.Context, ticks []*tickdomain.Tick) e
 }
 
 // GetByFilter retrieves tick data points by filter.
-func (r *Repository) GetByFilter(ctx context.Context, filter tickdomain.TickFilter) ([]*tickdomain.Tick, error) {
+func (r *Repository) GetByFilter(ctx context.Context, filter Filter) ([]*Tick, error) {
 	query := "SELECT timestamp, symbol, price, volume, side FROM ticks WHERE 1=1"
 	args := []interface{}{}
 	argIndex := 1
@@ -111,9 +110,9 @@ func (r *Repository) GetByFilter(ctx context.Context, filter tickdomain.TickFilt
 	}
 	defer rows.Close()
 
-	var ticks []*tickdomain.Tick
+	var ticks []*Tick
 	for rows.Next() {
-		tick := &tickdomain.Tick{}
+		tick := &Tick{}
 		err := rows.Scan(&tick.Timestamp, &tick.Symbol, &tick.Price, &tick.Volume, &tick.Side)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan tick: %w", err)
@@ -129,14 +128,14 @@ func (r *Repository) GetByFilter(ctx context.Context, filter tickdomain.TickFilt
 }
 
 // GetLatestBySymbol retrieves the latest tick data point by symbol.
-func (r *Repository) GetLatestBySymbol(ctx context.Context, symbol string) (*tickdomain.Tick, error) {
+func (r *Repository) GetLatestBySymbol(ctx context.Context, symbol string) (*Tick, error) {
 	query := `SELECT timestamp, symbol, price, volume, side 
 			  FROM ticks 
 			  WHERE symbol = $1 
 			  ORDER BY timestamp DESC 
 			  LIMIT 1`
 
-	tick := &tickdomain.Tick{}
+	tick := &Tick{}
 	err := r.client.QueryRow(ctx, query, symbol).Scan(
 		&tick.Timestamp, &tick.Symbol, &tick.Price, &tick.Volume, &tick.Side)
 

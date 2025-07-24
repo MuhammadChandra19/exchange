@@ -6,7 +6,7 @@ import (
 
 // OrderRepository is the interface for the order repository.
 //
-//go:generate mockgen -source=repository.go -destination=mock/repository_mock.go -package=mock
+//go:generate mockgen -source=interface.go -destination=mock/repository_mock.go -package=mock
 type OrderRepository interface {
 	// Order management
 	Store(ctx context.Context, order *Order) error
@@ -22,6 +22,6 @@ type OrderRepository interface {
 	GetEventsByOrderID(ctx context.Context, orderID string) ([]*OrderEvent, error)
 
 	// Order book reconstruction
-	GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string) ([]*Order, error)
+	GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string, limit int, offset int) ([]*Order, error)
 	GetOrderBookSnapshot(ctx context.Context, symbol string, depth int) (*OrderBook, error)
 }

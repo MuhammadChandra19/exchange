@@ -8,7 +8,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/jackc/pgx/v5"
-	ohlcdomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/ohlc/v1"
 	mockOhlc "github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb/mock"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,13 +18,13 @@ func TestOhlc_Store(t *testing.T) {
 	now := time.Now()
 	testCases := []struct {
 		name     string
-		mockFn   func(testData *ohlcdomain.OHLC, mock *mockOhlc.MockQuestDBClient)
+		mockFn   func(testData *OHLC, mock *mockOhlc.MockQuestDBClient)
 		assertFn func(t *testing.T, err error)
-		testData *ohlcdomain.OHLC
+		testData *OHLC
 	}{
 		{
 			name: "success",
-			mockFn: func(testData *ohlcdomain.OHLC, mock *mockOhlc.MockQuestDBClient) {
+			mockFn: func(testData *OHLC, mock *mockOhlc.MockQuestDBClient) {
 				mock.EXPECT().Exec(
 					gomock.Any(),
 					query,
@@ -43,7 +42,7 @@ func TestOhlc_Store(t *testing.T) {
 			assertFn: func(t *testing.T, err error) {
 				assert.NoError(t, err)
 			},
-			testData: &ohlcdomain.OHLC{
+			testData: &OHLC{
 				Timestamp:  now,
 				Symbol:     "BTCUSDT",
 				Interval:   "1m",
@@ -57,7 +56,7 @@ func TestOhlc_Store(t *testing.T) {
 		},
 		{
 			name: "error - exec fails",
-			mockFn: func(testData *ohlcdomain.OHLC, mock *mockOhlc.MockQuestDBClient) {
+			mockFn: func(testData *OHLC, mock *mockOhlc.MockQuestDBClient) {
 				mock.EXPECT().Exec(
 					gomock.Any(),
 					query,
@@ -75,7 +74,7 @@ func TestOhlc_Store(t *testing.T) {
 			assertFn: func(t *testing.T, err error) {
 				assert.Error(t, err)
 			},
-			testData: &ohlcdomain.OHLC{
+			testData: &OHLC{
 				Timestamp:  now,
 				Symbol:     "BTCUSDT",
 				Interval:   "1m",
@@ -109,19 +108,19 @@ func TestOhlc_StoreBatch(t *testing.T) {
 	now := time.Now()
 	testCases := []struct {
 		name     string
-		mockFn   func(testData []*ohlcdomain.OHLC, mock *mockOhlc.MockQuestDBClient)
+		mockFn   func(testData []*OHLC, mock *mockOhlc.MockQuestDBClient)
 		assertFn func(t *testing.T, err error)
-		testData []*ohlcdomain.OHLC
+		testData []*OHLC
 	}{
 		{
 			name: "success",
-			mockFn: func(testData []*ohlcdomain.OHLC, mock *mockOhlc.MockQuestDBClient) {
+			mockFn: func(testData []*OHLC, mock *mockOhlc.MockQuestDBClient) {
 				mock.EXPECT().CopyFrom(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(int64(1), nil)
 			},
 			assertFn: func(t *testing.T, err error) {
 				assert.NoError(t, err)
 			},
-			testData: []*ohlcdomain.OHLC{
+			testData: []*OHLC{
 				{
 					Timestamp: now,
 					Symbol:    "BTCUSDT",
@@ -131,13 +130,13 @@ func TestOhlc_StoreBatch(t *testing.T) {
 		},
 		{
 			name: "error - copy from fails",
-			mockFn: func(testData []*ohlcdomain.OHLC, mock *mockOhlc.MockQuestDBClient) {
+			mockFn: func(testData []*OHLC, mock *mockOhlc.MockQuestDBClient) {
 				mock.EXPECT().CopyFrom(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(int64(0), errors.New("copy from failed"))
 			},
 			assertFn: func(t *testing.T, err error) {
 				assert.Error(t, err)
 			},
-			testData: []*ohlcdomain.OHLC{
+			testData: []*OHLC{
 				{
 					Timestamp: now,
 					Symbol:    "BTCUSDT",
@@ -169,8 +168,8 @@ func TestOhlc_GetByFilter(t *testing.T) {
 	testCases := []struct {
 		name     string
 		mockFn   func(mock *mockOhlc.MockQuestDBClient, mockRows *mockOhlc.MockRowsInterface)
-		assertFn func(t *testing.T, err error, ticks []*ohlcdomain.OHLC)
-		filter   ohlcdomain.OHLCFilter
+		assertFn func(t *testing.T, err error, ticks []*OHLC)
+		filter   OHLCFilter
 	}{
 		{
 			name: "success: with all filters",
@@ -198,14 +197,14 @@ func TestOhlc_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Err().Return(nil)
 				mockRows.EXPECT().Close()
 			},
-			filter: ohlcdomain.OHLCFilter{
+			filter: OHLCFilter{
 				Symbol:   "BTCUSDT",
 				Interval: "1m",
 				From:     &now,
 				To:       &now,
 				Limit:    10,
 			},
-			assertFn: func(t *testing.T, err error, ticks []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ticks []*OHLC) {
 				assert.NoError(t, err)
 				assert.Len(t, ticks, 1)
 			},
@@ -223,14 +222,14 @@ func TestOhlc_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Err().Return(nil)
 				mockRows.EXPECT().Close()
 			},
-			filter: ohlcdomain.OHLCFilter{
+			filter: OHLCFilter{
 				Symbol:   "BTCUSDT",
 				Interval: "1m",
 				From:     &now,
 				To:       &now,
 				Limit:    10,
 			},
-			assertFn: func(t *testing.T, err error, ticks []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ticks []*OHLC) {
 				assert.NoError(t, err)
 				assert.Len(t, ticks, 0)
 			},
@@ -244,14 +243,14 @@ func TestOhlc_GetByFilter(t *testing.T) {
 					[]interface{}{"BTCUSDT", "1m", now, now, 10},
 				).Return(nil, errors.New("query failed"))
 			},
-			filter: ohlcdomain.OHLCFilter{
+			filter: OHLCFilter{
 				Symbol:   "BTCUSDT",
 				Interval: "1m",
 				From:     &now,
 				To:       &now,
 				Limit:    10,
 			},
-			assertFn: func(t *testing.T, err error, ticks []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ticks []*OHLC) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "query failed")
 			},
@@ -269,14 +268,14 @@ func TestOhlc_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Scan(gomock.Any()).Return(errors.New("scan failed"))
 				mockRows.EXPECT().Close()
 			},
-			filter: ohlcdomain.OHLCFilter{
+			filter: OHLCFilter{
 				Symbol:   "BTCUSDT",
 				Interval: "1m",
 				From:     &now,
 				To:       &now,
 				Limit:    10,
 			},
-			assertFn: func(t *testing.T, err error, ticks []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ticks []*OHLC) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "scan failed")
 			},
@@ -293,14 +292,14 @@ func TestOhlc_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Err().Return(errors.New("iteration error"))
 				mockRows.EXPECT().Close() // Cleanup
 			},
-			filter: ohlcdomain.OHLCFilter{
+			filter: OHLCFilter{
 				Symbol:   "BTCUSDT",
 				Interval: "1m",
 				From:     &now,
 				To:       &now,
 				Limit:    10,
 			},
-			assertFn: func(t *testing.T, err error, ticks []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ticks []*OHLC) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "iteration error")
 			},
@@ -334,7 +333,7 @@ func TestOhlc_GetLatest(t *testing.T) {
 	testCases := []struct {
 		name     string
 		mockFn   func(mock *mockOhlc.MockQuestDBClient, mockRows *mockOhlc.MockRowsInterface)
-		assertFn func(t *testing.T, err error, ohlc *ohlcdomain.OHLC)
+		assertFn func(t *testing.T, err error, ohlc *OHLC)
 		symbol   string
 		interval string
 	}{
@@ -357,7 +356,7 @@ func TestOhlc_GetLatest(t *testing.T) {
 			},
 			symbol:   "BTCUSDT",
 			interval: "1m",
-			assertFn: func(t *testing.T, err error, ohlc *ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ohlc *OHLC) {
 				assert.NoError(t, err)
 				assert.NotNil(t, ohlc)
 				assert.Equal(t, "BTCUSDT", ohlc.Symbol)
@@ -378,7 +377,7 @@ func TestOhlc_GetLatest(t *testing.T) {
 			},
 			symbol:   "BTCUSDT",
 			interval: "1m",
-			assertFn: func(t *testing.T, err error, ohlc *ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ohlc *OHLC) {
 				assert.NoError(t, err)
 				assert.Nil(t, ohlc)
 			},
@@ -391,7 +390,7 @@ func TestOhlc_GetLatest(t *testing.T) {
 			},
 			symbol:   "BTCUSDT",
 			interval: "1m",
-			assertFn: func(t *testing.T, err error, ohlc *ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ohlc *OHLC) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "failed to get latest OHLC")
 				assert.Nil(t, ohlc)
@@ -426,7 +425,7 @@ func TestOhlc_GetIntradayData(t *testing.T) {
 	testCases := []struct {
 		name     string
 		mockFn   func(mock *mockOhlc.MockQuestDBClient, mockRows *mockOhlc.MockRowsInterface)
-		assertFn func(t *testing.T, err error, ohlcs []*ohlcdomain.OHLC)
+		assertFn func(t *testing.T, err error, ohlcs []*OHLC)
 		symbol   string
 		interval string
 		limit    int
@@ -456,7 +455,7 @@ func TestOhlc_GetIntradayData(t *testing.T) {
 			symbol:   "BTCUSDT",
 			interval: "1m",
 			limit:    10,
-			assertFn: func(t *testing.T, err error, ohlcs []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ohlcs []*OHLC) {
 				assert.NoError(t, err)
 				assert.Len(t, ohlcs, 1)
 				assert.Equal(t, "BTCUSDT", ohlcs[0].Symbol)
@@ -475,7 +474,7 @@ func TestOhlc_GetIntradayData(t *testing.T) {
 			symbol:   "BTCUSDT",
 			interval: "1m",
 			limit:    10,
-			assertFn: func(t *testing.T, err error, ohlcs []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ohlcs []*OHLC) {
 				assert.NoError(t, err)
 				assert.Len(t, ohlcs, 0)
 			},
@@ -488,7 +487,7 @@ func TestOhlc_GetIntradayData(t *testing.T) {
 			symbol:   "BTCUSDT",
 			interval: "1m",
 			limit:    10,
-			assertFn: func(t *testing.T, err error, ohlcs []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ohlcs []*OHLC) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "failed to query intraday OHLC")
 				assert.Nil(t, ohlcs)
@@ -506,7 +505,7 @@ func TestOhlc_GetIntradayData(t *testing.T) {
 			symbol:   "BTCUSDT",
 			interval: "1m",
 			limit:    10,
-			assertFn: func(t *testing.T, err error, ohlcs []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ohlcs []*OHLC) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "failed to scan OHLC")
 				assert.Nil(t, ohlcs)
@@ -524,7 +523,7 @@ func TestOhlc_GetIntradayData(t *testing.T) {
 			symbol:   "BTCUSDT",
 			interval: "1m",
 			limit:    10,
-			assertFn: func(t *testing.T, err error, ohlcs []*ohlcdomain.OHLC) {
+			assertFn: func(t *testing.T, err error, ohlcs []*OHLC) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "error iterating rows")
 				assert.Nil(t, ohlcs)

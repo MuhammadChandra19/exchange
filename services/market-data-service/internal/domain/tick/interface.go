@@ -7,6 +7,8 @@ import (
 	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb/tick"
 )
 
+//go:generate mockgen -source=interface.go -destination=mock/usecase_mock.go -package=mock
+
 // Usecase is the interface for the tick usecase.
 type Usecase interface {
 	GetLatestTick(ctx context.Context, symbol string) (*tick.Tick, error)

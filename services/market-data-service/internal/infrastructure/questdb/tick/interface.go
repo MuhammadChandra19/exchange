@@ -7,7 +7,7 @@ import (
 
 // TickRepository is the interface for the tick repository.
 //
-//go:generate mockgen -source=repository.go -destination=mock/repository_mock.go -package=mock
+//go:generate mockgen -source=interface.go -destination=mock/repository_mock.go -package=mock
 type TickRepository interface {
 	GetByFilter(ctx context.Context, filter Filter) ([]*Tick, error)
 	GetLatestBySymbol(ctx context.Context, symbol string) (*Tick, error)

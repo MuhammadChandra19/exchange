@@ -2,6 +2,9 @@ package tick
 
 import (
 	"time"
+
+	"github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/shared"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Tick represents a single tick (price and volume) data point.
@@ -11,6 +14,17 @@ type Tick struct {
 	Price     float64
 	Volume    int64
 	Side      string // "buy" or "sell"
+}
+
+// ToProto converts the Tick to a protobuf message.
+func (t *Tick) ToProto() *shared.Tick {
+	return &shared.Tick{
+		Symbol:    t.Symbol,
+		Price:     t.Price,
+		Volume:    t.Volume,
+		Side:      t.Side,
+		Timestamp: timestamppb.New(t.Timestamp).AsTime().Format(time.RFC3339),
+	}
 }
 
 // Filter represents the filter criteria for tick data.

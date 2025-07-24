@@ -2,6 +2,9 @@ package order
 
 import (
 	"time"
+
+	pb "github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/shared"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Order represents a single order.
@@ -15,6 +18,21 @@ type Order struct {
 	Type      string    `json:"type"`
 	Status    string    `json:"status"`
 	UserID    string    `json:"userID"`
+}
+
+// ToProto converts the order to a protobuf message.
+func (o *Order) ToProto() *pb.Order {
+	return &pb.Order{
+		Id:        o.ID,
+		Symbol:    o.Symbol,
+		Side:      o.Side,
+		Price:     o.Price,
+		Quantity:  o.Quantity,
+		Type:      o.Type,
+		Status:    o.Status,
+		Timestamp: timestamppb.New(o.Timestamp).AsTime().Format(time.RFC3339),
+		UserID:    o.UserID,
+	}
 }
 
 // OrderEvent represents a single order event.

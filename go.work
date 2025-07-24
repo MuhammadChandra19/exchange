@@ -8,4 +8,5 @@ use (
 	./proto
 	./services/market-data-service
 	./services/matching-service
+	./rpc-gateway
 )

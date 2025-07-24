@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	orderdomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/order/v1"
 	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
 )
 
@@ -24,7 +23,7 @@ func NewRepository(client questdb.QuestDBClient) *Repository {
 }
 
 // Store stores an order.
-func (r *Repository) Store(ctx context.Context, order *orderdomain.Order) error {
+func (r *Repository) Store(ctx context.Context, order *Order) error {
 	query := `INSERT INTO orders (order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id) 
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
@@ -40,7 +39,7 @@ func (r *Repository) Store(ctx context.Context, order *orderdomain.Order) error 
 }
 
 // StoreBatch stores a batch of orders.
-func (r *Repository) StoreBatch(ctx context.Context, orders []*orderdomain.Order) error {
+func (r *Repository) StoreBatch(ctx context.Context, orders []*Order) error {
 	if len(orders) == 0 {
 		return nil
 	}
@@ -95,11 +94,11 @@ func (r *Repository) Update(ctx context.Context, orderID string, updates map[str
 }
 
 // GetByID gets an order by ID.
-func (r *Repository) GetByID(ctx context.Context, orderID string) (*orderdomain.Order, error) {
+func (r *Repository) GetByID(ctx context.Context, orderID string) (*Order, error) {
 	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id
 			  FROM orders WHERE order_id = $1`
 
-	order := &orderdomain.Order{}
+	order := &Order{}
 	err := r.client.QueryRow(ctx, query, orderID).Scan(
 		&order.ID, &order.Timestamp, &order.Symbol, &order.Side, &order.Price,
 		&order.Quantity, &order.Type, &order.Status, &order.UserID)
@@ -127,7 +126,7 @@ func (r *Repository) Delete(ctx context.Context, orderID string) error {
 }
 
 // StoreEvent stores an order event.
-func (r *Repository) StoreEvent(ctx context.Context, event *orderdomain.OrderEvent) error {
+func (r *Repository) StoreEvent(ctx context.Context, event *OrderEvent) error {
 	query := `INSERT INTO order_events (event_id, timestamp, order_id, event_type, symbol, side, price, quantity, user_id, new_price, new_quantity) 
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
@@ -144,7 +143,7 @@ func (r *Repository) StoreEvent(ctx context.Context, event *orderdomain.OrderEve
 }
 
 // GetActiveOrdersBySymbol gets active orders by symbol and side.
-func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string) ([]*orderdomain.Order, error) {
+func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string, side string) ([]*Order, error) {
 	query := `SELECT order_id, timestamp, symbol, side, price, quantity, order_type, status, user_id
 			  FROM orders 
 			  WHERE symbol = $1 AND side = $2 AND status = 'active'
@@ -163,9 +162,9 @@ func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string,
 	}
 	defer rows.Close()
 
-	var orders []*orderdomain.Order
+	var orders []*Order
 	for rows.Next() {
-		order := &orderdomain.Order{}
+		order := &Order{}
 		err := rows.Scan(&order.ID, &order.Timestamp, &order.Symbol, &order.Side,
 			&order.Price, &order.Quantity, &order.Type, &order.Status, &order.UserID)
 		if err != nil {
@@ -178,7 +177,7 @@ func (r *Repository) GetActiveOrdersBySymbol(ctx context.Context, symbol string,
 }
 
 // GetOrderBookSnapshot gets an order book snapshot.
-func (r *Repository) GetOrderBookSnapshot(ctx context.Context, symbol string, depth int) (*orderdomain.OrderBook, error) {
+func (r *Repository) GetOrderBookSnapshot(ctx context.Context, symbol string, depth int) (*OrderBook, error) {
 	// Get aggregated bid levels
 	bidQuery := `SELECT price, SUM(quantity) as total_quantity, COUNT(*) as order_count
 				 FROM orders 
@@ -193,9 +192,9 @@ func (r *Repository) GetOrderBookSnapshot(ctx context.Context, symbol string, de
 	}
 	defer bidRows.Close()
 
-	var bids []orderdomain.OrderBookLevel
+	var bids []OrderBookLevel
 	for bidRows.Next() {
-		var level orderdomain.OrderBookLevel
+		var level OrderBookLevel
 		err := bidRows.Scan(&level.Price, &level.Quantity, &level.Orders)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan bid level: %w", err)
@@ -217,9 +216,9 @@ func (r *Repository) GetOrderBookSnapshot(ctx context.Context, symbol string, de
 	}
 	defer askRows.Close()
 
-	var asks []orderdomain.OrderBookLevel
+	var asks []OrderBookLevel
 	for askRows.Next() {
-		var level orderdomain.OrderBookLevel
+		var level OrderBookLevel
 		err := askRows.Scan(&level.Price, &level.Quantity, &level.Orders)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan ask level: %w", err)
@@ -227,7 +226,7 @@ func (r *Repository) GetOrderBookSnapshot(ctx context.Context, symbol string, de
 		asks = append(asks, level)
 	}
 
-	return &orderdomain.OrderBook{
+	return &OrderBook{
 		Symbol:    symbol,
 		Timestamp: time.Now(),
 		Bids:      bids,
@@ -238,21 +237,21 @@ func (r *Repository) GetOrderBookSnapshot(ctx context.Context, symbol string, de
 // Helper methods for the rest of the interface
 
 // GetByFilter gets orders by filter.
-func (r *Repository) GetByFilter(ctx context.Context, filter orderdomain.OrderFilter) ([]*orderdomain.Order, error) {
+func (r *Repository) GetByFilter(ctx context.Context, filter OrderFilter) ([]*Order, error) {
 	// Implementation similar to tick repository GetByFilter
 	// ... (implement based on your filtering needs)
 	return nil, nil
 }
 
 // StoreEventBatch stores a batch of order events.
-func (r *Repository) StoreEventBatch(ctx context.Context, events []*orderdomain.OrderEvent) error {
+func (r *Repository) StoreEventBatch(ctx context.Context, events []*OrderEvent) error {
 	// Implementation using CopyFrom for batch event storage
 	// ... (implement similar to other batch operations)
 	return nil
 }
 
 // GetEventsByOrderID gets events by order ID.
-func (r *Repository) GetEventsByOrderID(ctx context.Context, orderID string) ([]*orderdomain.OrderEvent, error) {
+func (r *Repository) GetEventsByOrderID(ctx context.Context, orderID string) ([]*OrderEvent, error) {
 	// Implementation to get all events for a specific order
 	// ... (implement based on your needs)
 	return nil, nil

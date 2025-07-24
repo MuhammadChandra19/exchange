@@ -69,6 +69,8 @@ service OrderService {
 message GetPairActiveOrdersRequest {
   string symbol = 1 [ json_name = "symbol" ];
   string side = 2 [ json_name = "side" ];
+  int32 limit = 3 [ json_name = "limit" ];
+  int32 offset = 4 [ json_name = "offset" ];
 }
 message GetPairActiveOrdersResponse {
   string status = 1;
