@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"github.com/muhammadchandra19/exchange/pkg/logger"
-	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
+	"github.com/muhammadchandra19/exchange/pkg/questdb"
 )
 
 // Bootstrap is the bootstrap for the market data service.

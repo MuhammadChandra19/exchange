@@ -6,8 +6,9 @@ import (
 
 //go:generate mockgen -source=consumer.go -destination=mock/consumer_mock.go -package=mock
 
+// OrderConsumer is the consumer for the order topic.
 type OrderConsumer interface {
-	Start(ctx context.Context) error
+	Start(ctx context.Context)
 	Stop() error
-	Subscribe(handler func(ctx context.Context, event *RawOrderEvent) error) error
+	Subscribe(ctx context.Context)
 }

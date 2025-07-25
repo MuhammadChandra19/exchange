@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/jackc/pgx/v5"
-	mockOhlc "github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb/mock"
+	mockOhlc "github.com/muhammadchandra19/exchange/pkg/questdb/mock"
 	"github.com/stretchr/testify/assert"
 )
 

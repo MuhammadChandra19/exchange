@@ -9,7 +9,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	v1 "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/order-consumer/v1"
 )
 
 // MockOrderConsumer is a mock of OrderConsumer interface.
@@ -36,11 +35,9 @@ func (m *MockOrderConsumer) EXPECT() *MockOrderConsumerMockRecorder {
 }
 
 // Start mocks base method.
-func (m *MockOrderConsumer) Start(ctx context.Context) error {
+func (m *MockOrderConsumer) Start(ctx context.Context) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Start", ctx)
-	ret0, _ := ret[0].(error)
-	return ret0
+	m.ctrl.Call(m, "Start", ctx)
 }
 
 // Start indicates an expected call of Start.
@@ -64,15 +61,13 @@ func (mr *MockOrderConsumerMockRecorder) Stop() *gomock.Call {
 }
 
 // Subscribe mocks base method.
-func (m *MockOrderConsumer) Subscribe(handler func(context.Context, *v1.RawOrderEvent) error) error {
+func (m *MockOrderConsumer) Subscribe(ctx context.Context) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Subscribe", handler)
-	ret0, _ := ret[0].(error)
-	return ret0
+	m.ctrl.Call(m, "Subscribe", ctx)
 }
 
 // Subscribe indicates an expected call of Subscribe.
-func (mr *MockOrderConsumerMockRecorder) Subscribe(handler interface{}) *gomock.Call {
+func (mr *MockOrderConsumerMockRecorder) Subscribe(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockOrderConsumer)(nil).Subscribe), handler)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Subscribe", reflect.TypeOf((*MockOrderConsumer)(nil).Subscribe), ctx)
 }

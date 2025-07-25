@@ -11,7 +11,7 @@ import (
 	gomock "github.com/golang/mock/gomock"
 	pgx "github.com/jackc/pgx/v5"
 	pgxpool "github.com/jackc/pgx/v5/pgxpool"
-	questdb "github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
+	questdb "github.com/muhammadchandra19/exchange/pkg/questdb"
 )
 
 // MockRowsInterface is a mock of RowsInterface interface.

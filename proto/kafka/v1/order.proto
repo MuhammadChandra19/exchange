@@ -5,8 +5,8 @@ package kafka.v1;
 option go_package = "github.com/muhammadchandra19/exchange/proto/kafka/v1";
 
 message PlaceOrderPayload {
-  string order_id = 1 [ json_name = "orderID" ];
-  string user_id = 2 [ json_name = "userID" ];
+  string orderID = 1 [ json_name = "orderID" ];
+  string userID = 2 [ json_name = "userID" ];
   string type = 3 [ json_name = "type" ];
   bool bid = 4 [ json_name = "bid" ];
   double size = 5 [ json_name = "size" ];

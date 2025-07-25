@@ -16,10 +16,3 @@ type MatchEvent struct {
 	Exchange    string
 	TakerSide   string // "buy" or "sell"
 }
-
-// ConsumerConfig represents the configuration for the match consumer.
-type ConsumerConfig struct {
-	Topic         string
-	ConsumerGroup string
-	Brokers       []string
-}

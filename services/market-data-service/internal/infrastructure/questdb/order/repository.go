@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
+	"github.com/muhammadchandra19/exchange/pkg/questdb"
 )
 
 // Repository is the repository for the order.

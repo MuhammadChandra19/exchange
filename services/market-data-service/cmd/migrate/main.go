@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
+	"github.com/muhammadchandra19/exchange/pkg/questdb"
 	"github.com/muhammadchandra19/exchange/services/market-data-service/pkg/config"
 )
 

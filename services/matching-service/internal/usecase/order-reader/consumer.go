@@ -53,23 +53,23 @@ func (r Reader) SetOffset(offset int64) error {
 }
 
 // ReadMessage reads a message from the Kafka topic and parses it as an Order.
-func (r Reader) ReadMessage(ctx context.Context) (kafka.Message, pb.PlaceOrderPayload, error) {
+func (r Reader) ReadMessage(ctx context.Context) (kafka.Message, *pb.PlaceOrderPayload, error) {
 	msg, err := r.kafkaReader.ReadMessage(ctx)
 	if err != nil {
 		r.logError(err, "ReadMessage")
-		return kafka.Message{Offset: 0}, pb.PlaceOrderPayload{}, err
+		return kafka.Message{Offset: 0}, nil, err
 	}
 
 	var order pb.PlaceOrderPayload
 	if err := json.Unmarshal(msg.Value, &order); err != nil {
 		r.logError(err, "UnmarshalOrder")
-		return kafka.Message{Offset: 0}, pb.PlaceOrderPayload{}, err
+		return kafka.Message{Offset: 0}, nil, err
 	}
 
 	r.logger.Info("ReadMessage",
 		logger.Field{
 			Key:   "userID",
-			Value: order.UserId,
+			Value: order.UserID,
 		},
 		logger.Field{
 			Key:   "size",
@@ -91,7 +91,7 @@ func (r Reader) ReadMessage(ctx context.Context) (kafka.Message, pb.PlaceOrderPa
 
 	order.Offset = msg.Offset // Set the offset in the order request
 
-	return msg, order, nil
+	return msg, &order, nil
 }
 
 // Close properly closes the Kafka reader.

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	pb "github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/shared"
+	v1 "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/order-consumer/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -33,6 +34,18 @@ func (o *Order) ToProto() *pb.Order {
 		Timestamp: timestamppb.New(o.Timestamp).AsTime().Format(time.RFC3339),
 		UserID:    o.UserID,
 	}
+}
+
+// FromOrderEvent converts a raw order event to an order.
+func (o *Order) FromOrderEvent(orderEvent *v1.RawOrderEvent) {
+	o.ID = orderEvent.OrderID
+	o.Symbol = orderEvent.Symbol
+	o.Side = orderEvent.Side
+	o.Price = orderEvent.Price
+	o.Quantity = orderEvent.Quantity
+	o.Type = orderEvent.EventType
+	o.Timestamp = orderEvent.Timestamp
+	o.UserID = orderEvent.UserID
 }
 
 // OrderEvent represents a single order event.

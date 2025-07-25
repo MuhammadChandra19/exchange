@@ -5,10 +5,10 @@ import (
 
 	"github.com/muhammadchandra19/exchange/pkg/grpclib/health"
 	"github.com/muhammadchandra19/exchange/pkg/logger"
+	"github.com/muhammadchandra19/exchange/pkg/questdb"
 	orderPublic "github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/public"
 	tickPublic "github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/public"
 	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/bootstrap"
-	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
 	orderInfra "github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb/order"
 	tickInfra "github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb/tick"
 	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/rpc"

@@ -5,6 +5,7 @@ use (
 	./pkg/grpclib
 	./pkg/httplib
 	./pkg/logger
+	./pkg/questdb
 	./pkg/redis
 	./pkg/util
 	./proto

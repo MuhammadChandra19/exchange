@@ -4,13 +4,7 @@ import (
 	"time"
 )
 
-type OrderConsumerConfig struct {
-	Topics        []string // ["orders", "order_updates", "order_cancellations"]
-	ConsumerGroup string
-	Brokers       []string
-}
-
-// Raw order events from the matching service
+// RawOrderEvent represents a raw order event from the matching service.
 type RawOrderEvent struct {
 	EventID   string    `json:"event_id"`
 	Timestamp time.Time `json:"timestamp"`

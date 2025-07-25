@@ -5,14 +5,15 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
-	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb"
+	"github.com/muhammadchandra19/exchange/pkg/questdb"
 )
 
 // Config represents the application configuration.
 type Config struct {
-	App     AppConfig      `envPrefix:"APP_"`
-	QuestDB questdb.Config `envPrefix:"QUESTDB_"`
-	Kafka   KafkaConfig    `envPrefix:"KAFKA_"`
+	App        AppConfig        `envPrefix:"APP_"`
+	QuestDB    questdb.Config   `envPrefix:"QUESTDB_"`
+	OrderKafka OrderKafkaConfig `envPrefix:"ORDER_KAFKA_"`
+	MatchKafka MatchKafkaConfig `envPrefix:"MATCH_KAFKA_"`
 }
 
 // AppConfig represents the application configuration.
@@ -24,19 +25,22 @@ type AppConfig struct {
 	LogLevel    string `env:"LOG_LEVEL" envDefault:"info"`
 }
 
-// KafkaConfig represents the Kafka configuration.
-type KafkaConfig struct {
-	Brokers []string `env:"BROKERS" envSeparator:"," envDefault:"localhost:9092"`
+// OrderKafkaConfig represents the Kafka configuration.
+type OrderKafkaConfig struct {
+	Brokers         []string `env:"BROKERS" envSeparator:"," envDefault:"localhost:9092"`
+	Topic           string   `env:"TOPIC" envDefault:"orders"`
+	ConsumerGroup   string   `env:"CONSUMER_GROUP" envDefault:"market-data-service"`
+	ConsumerTimeout int      `env:"CONSUMER_TIMEOUT" envDefault:"5"`
+	MaxRetries      int      `env:"MAX_RETRIES" envDefault:"3"`
+}
 
-	// Match events
-	MatchTopic string `env:"MATCH_TOPIC" envDefault:"matches"`
-
-	// Order events
-	OrderTopics []string `env:"ORDER_TOPICS" envSeparator:"," envDefault:"orders,order_updates,order_cancellations"`
-
-	ConsumerGroup   string `env:"CONSUMER_GROUP" envDefault:"market-data-service"`
-	ConsumerTimeout int    `env:"CONSUMER_TIMEOUT" envDefault:"5"`
-	MaxRetries      int    `env:"MAX_RETRIES" envDefault:"3"`
+// MatchKafkaConfig represents the Kafka configuration.
+type MatchKafkaConfig struct {
+	Brokers         []string `env:"BROKERS" envSeparator:"," envDefault:"localhost:9092"`
+	Topic           string   `env:"TOPIC" envDefault:"matches"`
+	ConsumerGroup   string   `env:"CONSUMER_GROUP" envDefault:"market-data-service"`
+	ConsumerTimeout int      `env:"CONSUMER_TIMEOUT" envDefault:"5"`
+	MaxRetries      int      `env:"MAX_RETRIES" envDefault:"3"`
 }
 
 // Load loads the configuration from the environment.

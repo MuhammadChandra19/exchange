@@ -8,8 +8,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/jackc/pgx/v5"
-	tickdomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/tick/v1"
-	"github.com/muhammadchandra19/exchange/services/market-data-service/internal/infrastructure/questdb/mock"
+	mock "github.com/muhammadchandra19/exchange/pkg/questdb/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,16 +17,16 @@ func TestTickRepository_Store(t *testing.T) {
 			  VALUES ($1, $2, $3, $4, $5)`
 	testCases := []struct {
 		name     string
-		mockFn   func(tickData *tickdomain.Tick, mock *mock.MockQuestDBClient)
+		mockFn   func(tickData *Tick, mock *mock.MockQuestDBClient)
 		assertFn func(t *testing.T, err error)
-		tick     *tickdomain.Tick
+		tick     *Tick
 	}{
 		{
 			name: "success",
-			mockFn: func(tickData *tickdomain.Tick, mock *mock.MockQuestDBClient) {
+			mockFn: func(tickData *Tick, mock *mock.MockQuestDBClient) {
 				mock.EXPECT().Exec(gomock.Any(), query, tickData.Timestamp, tickData.Symbol, tickData.Price, tickData.Volume, tickData.Side).Return(nil)
 			},
-			tick: &tickdomain.Tick{
+			tick: &Tick{
 				Timestamp: time.Now(),
 				Symbol:    "BTCUSDT",
 				Price:     10000,
@@ -40,10 +39,10 @@ func TestTickRepository_Store(t *testing.T) {
 		},
 		{
 			name: "error",
-			mockFn: func(tickData *tickdomain.Tick, mock *mock.MockQuestDBClient) {
+			mockFn: func(tickData *Tick, mock *mock.MockQuestDBClient) {
 				mock.EXPECT().Exec(gomock.Any(), query, tickData.Timestamp, tickData.Symbol, tickData.Price, tickData.Volume, tickData.Side).Return(errors.New("error"))
 			},
-			tick: &tickdomain.Tick{
+			tick: &Tick{
 				Timestamp: time.Now(),
 				Symbol:    "BTCUSDT",
 				Price:     10000,
@@ -74,16 +73,16 @@ func TestTickRepository_Store(t *testing.T) {
 func TestTickRepository_StoreBatch(t *testing.T) {
 	testCases := []struct {
 		name     string
-		mockFn   func(ticks []*tickdomain.Tick, mock *mock.MockQuestDBClient)
+		mockFn   func(ticks []*Tick, mock *mock.MockQuestDBClient)
 		assertFn func(t *testing.T, err error)
-		ticks    []*tickdomain.Tick
+		ticks    []*Tick
 	}{
 		{
 			name: "success",
-			mockFn: func(ticks []*tickdomain.Tick, mock *mock.MockQuestDBClient) {
+			mockFn: func(ticks []*Tick, mock *mock.MockQuestDBClient) {
 				mock.EXPECT().CopyFrom(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(int64(1), nil)
 			},
-			ticks: []*tickdomain.Tick{
+			ticks: []*Tick{
 				{
 					Timestamp: time.Now(),
 					Symbol:    "BTCUSDT",
@@ -98,10 +97,10 @@ func TestTickRepository_StoreBatch(t *testing.T) {
 		},
 		{
 			name: "error",
-			mockFn: func(ticks []*tickdomain.Tick, mock *mock.MockQuestDBClient) {
+			mockFn: func(ticks []*Tick, mock *mock.MockQuestDBClient) {
 				mock.EXPECT().CopyFrom(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(int64(0), errors.New("error"))
 			},
-			ticks: []*tickdomain.Tick{
+			ticks: []*Tick{
 				{
 					Timestamp: time.Now(),
 					Symbol:    "BTCUSDT",
@@ -137,8 +136,8 @@ func TestTickRepository_GetByFilter(t *testing.T) {
 	testCases := []struct {
 		name     string
 		mockFn   func(mock *mock.MockQuestDBClient, mockRows *mock.MockRowsInterface)
-		assertFn func(t *testing.T, err error, ticks []*tickdomain.Tick)
-		filter   tickdomain.TickFilter
+		assertFn func(t *testing.T, err error, ticks []*Tick)
+		filter   Filter
 	}{
 		{
 			name: "success: with all filters",
@@ -162,8 +161,8 @@ func TestTickRepository_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Err().Return(nil)
 				mockRows.EXPECT().Close()
 			},
-			filter: tickdomain.TickFilter{Symbol: "BTCUSDT", From: &now, To: &now, Limit: 10, Offset: 1},
-			assertFn: func(t *testing.T, err error, ticks []*tickdomain.Tick) {
+			filter: Filter{Symbol: "BTCUSDT", From: &now, To: &now, Limit: 10, Offset: 1},
+			assertFn: func(t *testing.T, err error, ticks []*Tick) {
 				assert.NoError(t, err)
 				assert.Len(t, ticks, 1)
 			},
@@ -188,8 +187,8 @@ func TestTickRepository_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Err().Return(nil)    // Check for errors
 				mockRows.EXPECT().Close()              // Cleanup
 			},
-			filter: tickdomain.TickFilter{Symbol: "BTCUSDT"},
-			assertFn: func(t *testing.T, err error, ticks []*tickdomain.Tick) {
+			filter: Filter{Symbol: "BTCUSDT"},
+			assertFn: func(t *testing.T, err error, ticks []*Tick) {
 				assert.NoError(t, err)
 				assert.Len(t, ticks, 1)
 			},
@@ -204,8 +203,8 @@ func TestTickRepository_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Err().Return(nil)    // Check for errors
 				mockRows.EXPECT().Close()              // Cleanup
 			},
-			filter: tickdomain.TickFilter{Symbol: "NONE"},
-			assertFn: func(t *testing.T, err error, ticks []*tickdomain.Tick) {
+			filter: Filter{Symbol: "NONE"},
+			assertFn: func(t *testing.T, err error, ticks []*Tick) {
 				assert.NoError(t, err)
 				assert.Len(t, ticks, 0)
 			},
@@ -218,8 +217,8 @@ func TestTickRepository_GetByFilter(t *testing.T) {
 					Return(nil, errors.New("query failed"))
 				// No rows expectations needed - query failed
 			},
-			filter: tickdomain.TickFilter{Symbol: "BTCUSDT"},
-			assertFn: func(t *testing.T, err error, ticks []*tickdomain.Tick) {
+			filter: Filter{Symbol: "BTCUSDT"},
+			assertFn: func(t *testing.T, err error, ticks []*Tick) {
 				assert.Error(t, err)
 				assert.Nil(t, ticks)
 			},
@@ -234,8 +233,8 @@ func TestTickRepository_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Scan(gomock.Any()).Return(errors.New("scan failed"))
 				mockRows.EXPECT().Close() // Cleanup (defer always runs)
 			},
-			filter: tickdomain.TickFilter{Symbol: "BTCUSDT"},
-			assertFn: func(t *testing.T, err error, ticks []*tickdomain.Tick) {
+			filter: Filter{Symbol: "BTCUSDT"},
+			assertFn: func(t *testing.T, err error, ticks []*Tick) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "scan failed")
 			},
@@ -250,8 +249,8 @@ func TestTickRepository_GetByFilter(t *testing.T) {
 				mockRows.EXPECT().Err().Return(errors.New("iteration error"))
 				mockRows.EXPECT().Close() // Cleanup
 			},
-			filter: tickdomain.TickFilter{Symbol: "BTCUSDT"},
-			assertFn: func(t *testing.T, err error, ticks []*tickdomain.Tick) {
+			filter: Filter{Symbol: "BTCUSDT"},
+			assertFn: func(t *testing.T, err error, ticks []*Tick) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "iteration error")
 			},
@@ -284,7 +283,7 @@ func TestTickRepository_GetLatestBySymbol(t *testing.T) {
 	testCases := []struct {
 		name     string
 		mockFn   func(mock *mock.MockQuestDBClient, mockRows *mock.MockRowsInterface)
-		assertFn func(t *testing.T, err error, tick *tickdomain.Tick)
+		assertFn func(t *testing.T, err error, tick *Tick)
 		symbol   string
 	}{
 		{
@@ -301,7 +300,7 @@ func TestTickRepository_GetLatestBySymbol(t *testing.T) {
 				})
 			},
 			symbol: "BTCUSDT",
-			assertFn: func(t *testing.T, err error, tick *tickdomain.Tick) {
+			assertFn: func(t *testing.T, err error, tick *Tick) {
 				assert.NoError(t, err)
 				assert.Equal(t, "BTCUSDT", tick.Symbol)
 				assert.Equal(t, 50000.0, tick.Price)
@@ -318,7 +317,7 @@ func TestTickRepository_GetLatestBySymbol(t *testing.T) {
 				})
 			},
 			symbol: "BTCUSDT",
-			assertFn: func(t *testing.T, err error, tick *tickdomain.Tick) {
+			assertFn: func(t *testing.T, err error, tick *Tick) {
 				assert.NoError(t, err)
 				assert.Nil(t, tick)
 			},
@@ -332,7 +331,7 @@ func TestTickRepository_GetLatestBySymbol(t *testing.T) {
 				})
 			},
 			symbol: "BTCUSDT",
-			assertFn: func(t *testing.T, err error, tick *tickdomain.Tick) {
+			assertFn: func(t *testing.T, err error, tick *Tick) {
 				assert.Error(t, err)
 				assert.Nil(t, tick)
 			},

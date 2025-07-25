@@ -181,7 +181,7 @@ func (e *Engine) runOrderProcessor() {
 			obRequest := orderbookv1.PlaceOrderRequest{}
 
 			// Process order immediately
-			if err := e.processOrder(obRequest.FromKafkaPayload(&orderRequest)); err != nil {
+			if err := e.processOrder(obRequest.FromKafkaPayload(orderRequest)); err != nil {
 				e.logger.ErrorContext(e.ctx, err, logger.Field{
 					Key:   "action",
 					Value: "process_order",

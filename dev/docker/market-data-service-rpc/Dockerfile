@@ -23,7 +23,7 @@ COPY pkg/ ./pkg/
 
 # Build the application
 RUN cd services/market-data-service && \
-  CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/market-data-service cmd/main.go
+  CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/market-data-service cmd/rpc/main.go
 
 # Final stage
 FROM alpine:latest
@@ -38,7 +38,7 @@ RUN adduser -D -s /bin/sh appuser
 WORKDIR /app
 
 # Copy binary from builder stage
-COPY --from=builder /app/services/market-data-service/bin/market-data-service .
+COPY --from=builder /app/services/market-data-service/bin/market-data-service-rpc .
 
 # Copy migrations
 COPY --from=builder /app/services/market-data-service/internal/infrastructure/questdb/migrations ./migrations
@@ -52,9 +52,9 @@ USER appuser
 # Expose ports
 EXPOSE 8080 9090
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+# # Health check
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+#   CMD curl -f http://localhost:8080/health || exit 1
 
 # Run the application
-CMD ["./market-data-service"] 
+CMD ["./market-data-service-rpc"] 
