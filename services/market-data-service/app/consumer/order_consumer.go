@@ -45,7 +45,14 @@ func NewOrderConsumer(ctx context.Context, config config.Config) (*OrderConsumer
 	orderConsumer.registerRepository()
 	orderConsumer.registerUsecase()
 
-	orderConsumer.Consumer = consumer.NewOrderConsumer(config.OrderKafka, logger, orderConsumer.usecase.OrderUsecase)
+	dbTx := questdb.NewTransaction(orderConsumer.db)
+
+	orderConsumer.Consumer = consumer.NewOrderConsumer(
+		config.OrderKafka,
+		logger,
+		orderConsumer.usecase.OrderUsecase,
+		dbTx,
+	)
 
 	return orderConsumer, nil
 }

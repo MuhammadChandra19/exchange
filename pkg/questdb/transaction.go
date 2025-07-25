@@ -11,9 +11,28 @@ type contextKey string
 
 const txKey contextKey = "questdb_transaction"
 
+//go:generate mockgen -source=transaction.go -destination=mock/transaction_mock.go -package=mock
+
+// Transaction is the transaction interface.
+type Transaction interface {
+	Begin(ctx context.Context) (pgx.Tx, error)
+	Commit(ctx context.Context) error
+	Rollback(ctx context.Context) error
+}
+
+// TX is the transaction wrapper.
+type TX struct {
+	db QuestDBClient
+}
+
+// NewTransaction creates a new transaction wrapper.
+func NewTransaction(db QuestDBClient) TX {
+	return TX{db: db}
+}
+
 // Begin starts a transaction and returns context with embedded transaction
-func Begin(ctx context.Context, client QuestDBClient) (context.Context, error) {
-	tx, err := client.Begin(ctx)
+func (t *TX) Begin(ctx context.Context) (context.Context, error) {
+	tx, err := t.db.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to begin transaction: %w", err)
 	}
@@ -22,7 +41,7 @@ func Begin(ctx context.Context, client QuestDBClient) (context.Context, error) {
 }
 
 // Commit commits the transaction from context
-func Commit(ctx context.Context) error {
+func (t *TX) Commit(ctx context.Context) error {
 	tx, ok := ctx.Value(txKey).(pgx.Tx)
 	if !ok {
 		return fmt.Errorf("no transaction found in context")
@@ -31,7 +50,7 @@ func Commit(ctx context.Context) error {
 }
 
 // Rollback rolls back the transaction from context
-func Rollback(ctx context.Context) error {
+func (t *TX) Rollback(ctx context.Context) error {
 	tx, ok := ctx.Value(txKey).(pgx.Tx)
 	if !ok {
 		return fmt.Errorf("no transaction found in context")
