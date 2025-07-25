@@ -8,6 +8,19 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+type OrderStatus string
+
+const (
+	// OrderStatusPlaced is the status of an order that has been placed.
+	OrderStatusPlaced OrderStatus = "placed"
+
+	// OrderStatusCancelled is the status of an order that has been cancelled.
+	OrderStatusCancelled OrderStatus = "cancelled"
+
+	// OrderStatusModified is the status of an order that has been modified.
+	OrderStatusModified OrderStatus = "modified"
+)
+
 // Order represents a single order.
 type Order struct {
 	ID        string    `json:"id"`
@@ -43,9 +56,32 @@ func (o *Order) FromOrderEvent(orderEvent *v1.RawOrderEvent) {
 	o.Side = orderEvent.Side
 	o.Price = orderEvent.Price
 	o.Quantity = orderEvent.Quantity
-	o.Type = orderEvent.EventType
+	o.Type = orderEvent.OrderType
 	o.Timestamp = orderEvent.Timestamp
 	o.UserID = orderEvent.UserID
+
+	switch orderEvent.EventType {
+	case v1.OrderPlaced:
+		o.Status = string(OrderStatusPlaced)
+	case v1.OrderCancelled:
+		o.Status = string(OrderStatusCancelled)
+	case v1.OrderModified:
+		o.Status = string(OrderStatusModified)
+	}
+}
+
+// CheckOrderDiff checks the difference between the order and the order event.
+func (o *Order) CheckOrderDiff(orderEvent *v1.RawOrderEvent) map[string]interface{} {
+	diff := make(map[string]interface{})
+	if o.Price != orderEvent.Price {
+		diff["price"] = orderEvent.Price
+	}
+
+	if o.Quantity != orderEvent.Quantity {
+		diff["quantity"] = orderEvent.Quantity
+	}
+
+	return diff
 }
 
 // OrderEvent represents a single order event.

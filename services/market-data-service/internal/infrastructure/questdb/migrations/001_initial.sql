@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS ohlc (
     low DOUBLE,
     close DOUBLE,
     volume LONG,
-    trade_count LONG,
+    trade_count LONG
 ) TIMESTAMP(timestamp) PARTITION BY DAY WAL
 DEDUP UPSERT KEYS (timestamp, symbol, interval);
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS orders (
     status SYMBOL CAPACITY 10 CACHE,
     user_id STRING
 ) TIMESTAMP(timestamp) PARTITION BY DAY WAL
-DEDUP UPSERT KEYS (order_id);
+DEDUP UPSERT KEYS (timestamp, order_id);
 
 -- Create order events table
 CREATE TABLE IF NOT EXISTS order_events (

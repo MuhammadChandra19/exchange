@@ -19,12 +19,12 @@ type OrderConsumer struct {
 	logger      logger.Interface
 
 	orderUsecase order.Usecase
-	dbTx         questdb.TX
+	dbTx         questdb.Transaction
 	msgChan      chan kafka.Message
 }
 
 // NewOrderConsumer creates a new OrderConsumer.
-func NewOrderConsumer(config config.OrderKafkaConfig, logger logger.Interface, orderUsecase order.Usecase, dbTx questdb.TX) *OrderConsumer {
+func NewOrderConsumer(config config.OrderKafkaConfig, logger logger.Interface, orderUsecase order.Usecase, dbTx questdb.Transaction) *OrderConsumer {
 	kafkaReader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:     config.Brokers,
 		Topic:       config.Topic,
@@ -122,22 +122,43 @@ func (c *OrderConsumer) handleOrder(ctx context.Context, orderEvent *v1.RawOrder
 	defer c.dbTx.Rollback(txCtx)
 
 	order := &orderInfra.Order{}
-
 	order.FromOrderEvent(orderEvent)
-	err = c.orderUsecase.StoreOrder(txCtx, order)
-	if err != nil {
-		c.logger.ErrorContext(ctx, err, logger.Field{
-			Key:   "action",
-			Value: "store_order",
-		})
-		return err
+
+	if orderEvent.EventType == v1.OrderCancelled {
+		err = c.orderUsecase.DeleteOrder(txCtx, orderEvent.OrderID)
+		if err != nil {
+			c.logger.ErrorContext(ctx, err, logger.Field{
+				Key:   "action",
+				Value: "delete_order",
+			})
+		}
+	}
+
+	if orderEvent.EventType == v1.OrderPlaced {
+		err = c.orderUsecase.StoreOrder(txCtx, order)
+		if err != nil {
+			c.logger.ErrorContext(ctx, err, logger.Field{
+				Key:   "action",
+				Value: "store_order",
+			})
+		}
+	}
+
+	if orderEvent.EventType == v1.OrderModified {
+		err = c.handleUpdateOrder(txCtx, orderEvent)
+		if err != nil {
+			c.logger.ErrorContext(ctx, err, logger.Field{
+				Key:   "action",
+				Value: "handle_update_order",
+			})
+		}
 	}
 
 	err = c.orderUsecase.StoreOrderEvent(txCtx, &orderInfra.OrderEvent{
 		ID:          orderEvent.OrderID,
 		Timestamp:   orderEvent.Timestamp,
 		OrderID:     orderEvent.OrderID,
-		EventType:   orderEvent.EventType,
+		EventType:   string(orderEvent.EventType),
 		Symbol:      orderEvent.Symbol,
 		Side:        orderEvent.Side,
 		Price:       orderEvent.Price,
@@ -160,6 +181,22 @@ func (c *OrderConsumer) handleOrder(ctx context.Context, orderEvent *v1.RawOrder
 			Value: "commit_transaction",
 		})
 
+		return err
+	}
+
+	return nil
+}
+
+func (c OrderConsumer) handleUpdateOrder(ctx context.Context, orderEvent *v1.RawOrderEvent) error {
+	order, err := c.orderUsecase.GetOrder(ctx, orderEvent.OrderID)
+	if err != nil {
+		return err
+	}
+
+	diff := order.CheckOrderDiff(orderEvent)
+
+	err = c.orderUsecase.UpdateOrder(ctx, orderEvent.OrderID, diff)
+	if err != nil {
 		return err
 	}
 
