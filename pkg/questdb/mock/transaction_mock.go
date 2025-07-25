@@ -9,7 +9,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	pgx "github.com/jackc/pgx/v5"
 )
 
 // MockTransaction is a mock of Transaction interface.
@@ -36,10 +35,10 @@ func (m *MockTransaction) EXPECT() *MockTransactionMockRecorder {
 }
 
 // Begin mocks base method.
-func (m *MockTransaction) Begin(ctx context.Context) (pgx.Tx, error) {
+func (m *MockTransaction) Begin(ctx context.Context) (context.Context, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Begin", ctx)
-	ret0, _ := ret[0].(pgx.Tx)
+	ret0, _ := ret[0].(context.Context)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -62,21 +61,6 @@ func (m *MockTransaction) Commit(ctx context.Context) error {
 func (mr *MockTransactionMockRecorder) Commit(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Commit", reflect.TypeOf((*MockTransaction)(nil).Commit), ctx)
-}
-
-// GetTx mocks base method.
-func (m *MockTransaction) GetTx(ctx context.Context) (pgx.Tx, bool) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTx", ctx)
-	ret0, _ := ret[0].(pgx.Tx)
-	ret1, _ := ret[1].(bool)
-	return ret0, ret1
-}
-
-// GetTx indicates an expected call of GetTx.
-func (mr *MockTransactionMockRecorder) GetTx(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTx", reflect.TypeOf((*MockTransaction)(nil).GetTx), ctx)
 }
 
 // Rollback mocks base method.

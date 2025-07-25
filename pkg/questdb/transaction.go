@@ -15,7 +15,7 @@ const txKey contextKey = "questdb_transaction"
 
 // Transaction is the transaction interface.
 type Transaction interface {
-	Begin(ctx context.Context) (pgx.Tx, error)
+	Begin(ctx context.Context) (context.Context, error)
 	Commit(ctx context.Context) error
 	Rollback(ctx context.Context) error
 }
@@ -26,8 +26,8 @@ type TX struct {
 }
 
 // NewTransaction creates a new transaction wrapper.
-func NewTransaction(db QuestDBClient) TX {
-	return TX{db: db}
+func NewTransaction(db QuestDBClient) *TX {
+	return &TX{db: db}
 }
 
 // Begin starts a transaction and returns context with embedded transaction
