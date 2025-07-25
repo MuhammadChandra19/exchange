@@ -1,3 +1,7 @@
+-- Migration: ini_table
+-- Created at: Fri Jul 25 21:07:34 WIB 2025
+
+-- Write your UP migration SQL here
 -- Create ticks table
 CREATE TABLE IF NOT EXISTS ticks (
     timestamp TIMESTAMP,
@@ -48,4 +52,4 @@ CREATE TABLE IF NOT EXISTS order_events (
     user_id STRING,
     new_price DOUBLE,
     new_quantity LONG
-) TIMESTAMP(timestamp) PARTITION BY HOUR WAL; 
+) TIMESTAMP(timestamp) PARTITION BY HOUR WAL;
