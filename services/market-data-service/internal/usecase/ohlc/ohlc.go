@@ -11,11 +11,11 @@ import (
 // Usecase is the usecase for the OHLC.
 type Usecase struct {
 	ohlcRepository ohlc.OHLCRepository
-	logger         logger.Logger
+	logger         logger.Interface
 }
 
 // NewUsecase creates a new OHLC usecase.
-func NewUsecase(ohlcRepository ohlc.OHLCRepository, logger logger.Logger) *Usecase {
+func NewUsecase(ohlcRepository ohlc.OHLCRepository, logger logger.Interface) *Usecase {
 	return &Usecase{ohlcRepository: ohlcRepository, logger: logger}
 }
 

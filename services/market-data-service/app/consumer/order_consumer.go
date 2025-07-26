@@ -27,8 +27,8 @@ type OrderConsumer struct {
 	db         questdb.QuestDBClient
 }
 
-// NewOrderConsumer creates a new OrderConsumer.
-func NewOrderConsumer(ctx context.Context, config config.Config) (*OrderConsumer, error) {
+// InitOrderConsumer creates a new OrderConsumer.
+func InitOrderConsumer(ctx context.Context, config config.Config) (*OrderConsumer, error) {
 	logger, err := logger.NewLogger()
 	if err != nil {
 		return nil, err

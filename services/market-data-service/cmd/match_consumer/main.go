@@ -20,31 +20,26 @@ func main() {
 		slog.Error("Failed to load config", "error", err)
 	}
 
-	orderConsumer, err := consumer.InitOrderConsumer(ctx, *cfg)
+	matchConsumer, err := consumer.InitMatchConsumer(ctx, *cfg)
 	if err != nil {
-		slog.Error("Failed to create order consumer", "error", err)
+		slog.Error("Failed to create match consumer", "error", err)
 	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	wg := sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		orderConsumer.Consumer.Start(ctx)
-	}()
-
-	go func() {
-		defer wg.Done()
-		orderConsumer.Consumer.Subscribe(ctx)
+		matchConsumer.Consumer.Start(ctx)
 	}()
 
 	<-quit
 
-	slog.Info("Shutting down order consumer...")
+	slog.Info("Shutting down match consumer...")
 	cancel()
-	orderConsumer.Consumer.Stop()
+	matchConsumer.Consumer.Stop(ctx)
 
-	slog.Info("Order consumer stopped")
+	slog.Info("Match consumer stopped")
 }

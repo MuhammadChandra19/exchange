@@ -8,7 +8,6 @@ import (
 
 // MatchConsumer represents a consumer that processes match events.
 type MatchConsumer interface {
-	Start(ctx context.Context) error
-	Stop() error
-	Subscribe(handler func(ctx context.Context, event *MatchEvent) error) error
+	Start(ctx context.Context)
+	Stop(ctx context.Context) error
 }

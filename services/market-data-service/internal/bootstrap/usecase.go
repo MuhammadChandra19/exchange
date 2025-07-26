@@ -4,6 +4,7 @@ import (
 	orderUc "github.com/muhammadchandra19/exchange/services/market-data-service/internal/usecase/order"
 	tickUc "github.com/muhammadchandra19/exchange/services/market-data-service/internal/usecase/tick"
 
+	ohlcDomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/ohlc"
 	orderDomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/order"
 	tickDomain "github.com/muhammadchandra19/exchange/services/market-data-service/internal/domain/tick"
 )
@@ -12,6 +13,7 @@ import (
 type Usecase struct {
 	OrderUsecase orderDomain.Usecase
 	TickUsecase  tickDomain.Usecase
+	OhlcUsecase  ohlcDomain.Usecase
 }
 
 // registerUsecase registers the usecase.
