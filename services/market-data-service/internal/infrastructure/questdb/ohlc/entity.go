@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/shared"
 	"github.com/muhammadchandra19/exchange/services/market-data-service/pkg/interval"
 )
 
@@ -11,7 +12,7 @@ import (
 type OHLC struct {
 	Timestamp  time.Time
 	Symbol     string
-	Interval   string // Use interval.GetAllIntervalNames() for validation
+	Interval   shared.Interval // Use interval.GetAllIntervalNames() for validation
 	Open       float64
 	High       float64
 	Low        float64
@@ -23,10 +24,11 @@ type OHLC struct {
 // OHLCFilter represents the filter criteria for OHLC data.
 type OHLCFilter struct {
 	Symbol   string
-	Interval string // Must be one of interval.GetAllIntervalNames()
+	Interval shared.Interval
 	From     *time.Time
 	To       *time.Time
-	Limit    int
+	Limit    int32
+	Offset   int32
 }
 
 // ValidateInterval validates the interval field
@@ -40,5 +42,5 @@ func (o *OHLC) ValidateInterval() error {
 
 // GetBucketTime calculates the correct bucket time for this OHLC
 func (o *OHLC) GetBucketTime() (time.Time, error) {
-	return interval.CalculateBucketTime(o.Timestamp, o.Interval)
+	return interval.CalculateBucketTime(o.Timestamp, o.Interval.String())
 }

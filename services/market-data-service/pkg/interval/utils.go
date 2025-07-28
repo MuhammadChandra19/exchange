@@ -3,25 +3,27 @@ package interval
 import (
 	"fmt"
 	"time"
+
+	"github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/shared"
 )
 
 // Interval represents a time interval for OHLC data
 type Interval struct {
-	Name     string
+	Name     shared.Interval
 	Duration time.Duration
 	Format   string
 }
 
 // Supported intervals configuration
 var (
-	Interval1m  = Interval{Name: "1m", Duration: time.Minute, Format: "2006-01-02 15:04:00"}
-	Interval5m  = Interval{Name: "5m", Duration: 5 * time.Minute, Format: "2006-01-02 15:04:00"}
-	Interval15m = Interval{Name: "15m", Duration: 15 * time.Minute, Format: "2006-01-02 15:04:00"}
-	Interval30m = Interval{Name: "30m", Duration: 30 * time.Minute, Format: "2006-01-02 15:04:00"}
-	Interval1h  = Interval{Name: "1h", Duration: time.Hour, Format: "2006-01-02 15:00:00"}
-	Interval4h  = Interval{Name: "4h", Duration: 4 * time.Hour, Format: "2006-01-02 15:00:00"}
-	Interval1d  = Interval{Name: "1d", Duration: 24 * time.Hour, Format: "2006-01-02 00:00:00"}
-	Interval1w  = Interval{Name: "1w", Duration: 7 * 24 * time.Hour, Format: "2006-01-02 00:00:00"}
+	Interval1m  = Interval{Name: shared.Interval_INTERVAL_1M, Duration: time.Minute, Format: "2006-01-02 15:04:00"}
+	Interval5m  = Interval{Name: shared.Interval_INTERVAL_5M, Duration: 5 * time.Minute, Format: "2006-01-02 15:04:00"}
+	Interval15m = Interval{Name: shared.Interval_INTERVAL_15M, Duration: 15 * time.Minute, Format: "2006-01-02 15:04:00"}
+	Interval30m = Interval{Name: shared.Interval_INTERVAL_30M, Duration: 30 * time.Minute, Format: "2006-01-02 15:04:00"}
+	Interval1h  = Interval{Name: shared.Interval_INTERVAL_1H, Duration: time.Hour, Format: "2006-01-02 15:00:00"}
+	Interval4h  = Interval{Name: shared.Interval_INTERVAL_4H, Duration: 4 * time.Hour, Format: "2006-01-02 15:00:00"}
+	Interval1d  = Interval{Name: shared.Interval_INTERVAL_1D, Duration: 24 * time.Hour, Format: "2006-01-02 00:00:00"}
+	Interval1w  = Interval{Name: shared.Interval_INTERVAL_1W, Duration: 7 * 24 * time.Hour, Format: "2006-01-02 00:00:00"}
 )
 
 // All supported intervals
@@ -42,7 +44,7 @@ var intervalRegistry = make(map[string]Interval)
 
 func init() {
 	for _, interval := range AllIntervals {
-		intervalRegistry[interval.Name] = interval
+		intervalRegistry[interval.Name.String()] = interval
 	}
 }
 
@@ -56,8 +58,8 @@ func GetInterval(name string) (Interval, error) {
 }
 
 // IsValidInterval checks if interval name is supported
-func IsValidInterval(name string) bool {
-	_, exists := intervalRegistry[name]
+func IsValidInterval(interval shared.Interval) bool {
+	_, exists := intervalRegistry[interval.String()]
 	return exists
 }
 
@@ -65,7 +67,7 @@ func IsValidInterval(name string) bool {
 func GetAllIntervalNames() []string {
 	names := make([]string, 0, len(AllIntervals))
 	for _, interval := range AllIntervals {
-		names = append(names, interval.Name)
+		names = append(names, interval.Name.String())
 	}
 	return names
 }
@@ -86,7 +88,7 @@ func GetAffectedIntervals(timestamp time.Time) map[string]time.Time {
 
 	for _, interval := range AllIntervals {
 		bucketTime := interval.CalculateBucketTime(timestamp)
-		affected[interval.Name] = bucketTime
+		affected[interval.Name.String()] = bucketTime
 	}
 
 	return affected

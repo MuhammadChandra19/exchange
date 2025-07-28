@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/muhammadchandra19/exchange/pkg/questdb"
+	"github.com/muhammadchandra19/exchange/proto/go/modules/market-data-service/v1/shared"
 )
 
 // Repository represents the repository for OHLC data.
@@ -83,7 +84,7 @@ func (r *Repository) GetByFilter(ctx context.Context, filter OHLCFilter) ([]*OHL
 		argIndex++
 	}
 
-	if filter.Interval != "" {
+	if filter.Interval != shared.Interval_INTERVAL_UNDEFINED {
 		query += fmt.Sprintf(" AND interval = $%d", argIndex)
 		args = append(args, filter.Interval)
 		argIndex++
@@ -98,6 +99,18 @@ func (r *Repository) GetByFilter(ctx context.Context, filter OHLCFilter) ([]*OHL
 	if filter.To != nil {
 		query += fmt.Sprintf(" AND timestamp <= $%d", argIndex)
 		args = append(args, *filter.To)
+		argIndex++
+	}
+
+	if filter.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", argIndex)
+		args = append(args, filter.Limit)
+		argIndex++
+	}
+
+	if filter.Offset > 0 {
+		query += fmt.Sprintf(" OFFSET $%d", argIndex)
+		args = append(args, filter.Offset)
 		argIndex++
 	}
 

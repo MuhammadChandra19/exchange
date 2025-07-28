@@ -186,7 +186,7 @@ func (c *MatchConsumer) addTickToOHLCBuffers(tick *tickInfra.Tick) {
 		bucketTime := intervalConfig.CalculateBucketTime(tick.Timestamp)
 
 		// Get or create buffer for this symbol+interval
-		buffer := c.ohlcBuffers[tick.Symbol][intervalConfig.Name]
+		buffer := c.ohlcBuffers[tick.Symbol][intervalConfig.Name.String()]
 		if buffer == nil || !buffer.BucketTime.Equal(bucketTime) {
 			// Create new buffer for new bucket
 			if buffer != nil {
@@ -196,12 +196,12 @@ func (c *MatchConsumer) addTickToOHLCBuffers(tick *tickInfra.Tick) {
 
 			buffer = &ohlc.Buffer{
 				Symbol:     tick.Symbol,
-				Interval:   intervalConfig.Name,
+				Interval:   intervalConfig.Name.String(),
 				BucketTime: bucketTime,
 				Ticks:      make([]interval.TickData, 0),
 				LastUpdate: time.Now(),
 			}
-			c.ohlcBuffers[tick.Symbol][intervalConfig.Name] = buffer
+			c.ohlcBuffers[tick.Symbol][intervalConfig.Name.String()] = buffer
 		}
 
 		// Add tick to buffer

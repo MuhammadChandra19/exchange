@@ -446,7 +446,6 @@ buf generate
 
 ### Directory Structure
 
-```
 services/matching-service/
 ├── cmd/
 │   └── main.go                 # Application entry point
