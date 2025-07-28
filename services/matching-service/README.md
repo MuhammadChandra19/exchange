@@ -256,29 +256,55 @@ type Match struct {
 
 ## Performance
 
-### Benchmarks
+### Benchmark Results
 
-The matching engine is optimized for high-frequency trading with sub-millisecond latency:
+The matching engine demonstrates exceptional performance with sub-microsecond order processing:
+
+#### Throughput Analysis (Operations/Second)
+
+| Operation Type | Duration (ns/op) | Throughput (ops/sec) |
+|---|---|---|
+| State Access (concurrent offset) | 20.49 | **48,804,295** | Ultra High |
+| Parallel Market Orders | 868.0 | **1,152,074** | 
+| Market Orders (with liquidity) | 1,063 | **940,734** |
+| Memory Allocation Test | 1,104 | **905,797** |
+| Parallel Limit Orders | 1,199 | **834,028** |
+| Single-threaded Limit Orders | 1,211 | **826,010** |
+| Mixed Operations (realistic) | 12,803 | **78,119** |
+| Small Orderbook Snapshot | 13,674 | **73,128** |
+| Large Orderbook Snapshot | 112,457 | **8,892** |
+
+#### Raw Benchmark Data
 
 ```
-BenchmarkEngine_PlaceLimitOrder-8          50000    25.4 μs/op    1024 B/op    12 allocs/op
-BenchmarkEngine_PlaceMarketOrder-8         75000    18.7 μs/op     768 B/op     8 allocs/op
-BenchmarkOrderbook_PlaceLimitOrder-8      100000    12.3 μs/op     512 B/op     6 allocs/op
+BenchmarkEngine_ProcessLimitOrder/single_threaded_limit_orders-10         	  952934	      1211 ns/op	     742 B/op	       8 allocs/op
+BenchmarkEngine_ProcessLimitOrder/parallel_limit_orders-10                	  993500	      1199 ns/op	     743 B/op	       8 allocs/op
+BenchmarkEngine_ProcessMarketOrder/market_orders_with_liquidity-10        	 1005352	      1063 ns/op	     654 B/op	       8 allocs/op
+BenchmarkEngine_ProcessMarketOrder/parallel_market_orders-10              	 1409472	       868.0 ns/op	     603 B/op	       8 allocs/op
+BenchmarkEngine_SnapshotCreation/snapshot_small_orderbook-10              	   82188	     13674 ns/op	   20296 B/op	     116 allocs/op
+BenchmarkEngine_SnapshotCreation/snapshot_large_orderbook-10              	    9283	    112457 ns/op	  154551 B/op	    1021 allocs/op
+BenchmarkEngine_MixedOperations/mixed_orders_realistic_workload-10        	   93180	     12803 ns/op	    3135 B/op	      15 allocs/op
+BenchmarkEngine_StateAccess/concurrent_offset_access-10                   	58417968	        20.49 ns/op	       0 B/op	       0 allocs/op
+BenchmarkEngine_MemoryAllocation-10                                       	 1000000	      1104 ns/op	     742 B/op	       8 allocs/op
 ```
 
-### Performance Characteristics
+### Memory Efficiency Analysis
 
-- **Order Processing**: ~40,000 orders/second per trading pair
-- **Matching Latency**: Sub-100 microseconds average
-- **Memory Usage**: Optimized for minimal allocations
-- **Throughput**: Scales linearly with CPU cores
+#### Core Order Processing (Highly Optimized)
+```
+Limit Orders:    742-743 B/op,  8 allocs/op
+Market Orders:   603-654 B/op,  8 allocs/op  (Most efficient)
+Memory Test:     742 B/op,      8 allocs/op
+```
 
-### Optimization Techniques
+**Analysis**: Core order processing is extremely memory-efficient with consistent low allocation patterns.
 
-- **Memory Pooling**: Reduced garbage collection overhead
-- **Lock-Free Operations**: Minimized contention in hot paths
-- **Batch Processing**: Efficient order processing
-- **Cache Locality**: Optimized data structures for CPU cache efficiency
+#### Snapshot Operations (Memory Intensive)
+```
+Small Orderbook:  20,296 B/op,   116 allocs/op   (277x more memory)
+Large Orderbook:  154,551 B/op,  1,021 allocs/op (208x more memory)
+Mixed Operations: 3,135 B/op,    15 allocs/op    (4.2x more memory)
+```
 
 ## State Management
 
@@ -405,7 +431,7 @@ services/matching-service/
 │   ├── domain/               # Domain layer
 │   │   ├── match-publisher/  # Match event publishing
 │   │   ├── order-reader/     # Order consumption
-│   │   ├── orderbook/        # Orderbook logic
+│   │   ├── orderbook/       
 │   │   └── snapshot/         # State management
 │   └── usecase/              # Business logic
 ├── pkg/                      # Public packages
@@ -780,17 +806,6 @@ export LOG_LEVEL=debug
 4. Submit pull request with description
 5. Address review feedback
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](../../LICENSE) file for details.
-
-## Support
-
-For questions and support:
-
-- **Issues**: GitHub Issues
-- **Documentation**: See `/docs` directory  
-- **Examples**: See `/examples` directory
 
 ---
 

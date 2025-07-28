@@ -7,6 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 
 	"github.com/muhammadchandra19/exchange/pkg/logger"
+	matchpublisherv1_mock "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/match-publisher/v1/mock"
 	orderreadermock "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/order-reader/v1/mock"
 	orderbookv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/orderbook/v1"
 	snapshotmock "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/snapshot/v1/mock"
@@ -28,6 +29,7 @@ func setupBenchmarkEngine(b *testing.B) *Engine {
 
 	mockOrderReader := orderreadermock.NewMockOrderReader(ctrl)
 	mockSnapshotStore := snapshotmock.NewMockStore(ctrl)
+	mockMatchPublisher := matchpublisherv1_mock.NewMockMatchPublisher(ctrl)
 
 	ob := orderbook.NewOrderbook()
 	log, err := logger.NewLogger()
@@ -45,9 +47,15 @@ func setupBenchmarkEngine(b *testing.B) *Engine {
 		Return(nil, nil).
 		Times(1)
 
-	engine := NewEngine(ob, mockOrderReader, mockSnapshotStore, log, cfg)
+	// Setup match publisher expectations for when matches occur
+	mockMatchPublisher.EXPECT().
+		PublishMatchEvent(gomock.Any(), gomock.Any()).
+		Return(nil).
+		AnyTimes()
 
-	// FIXED: Initialize context to avoid nil pointer dereference
+	engine := NewEngine(ob, mockOrderReader, mockSnapshotStore, mockMatchPublisher, log, cfg)
+
+	// Initialize context to avoid nil pointer dereference
 	engine.ctx = context.Background()
 
 	return engine
@@ -237,6 +245,7 @@ func BenchmarkEngine_SnapshotCreation(b *testing.B) {
 				ctrl := gomock.NewController(b)
 				mockOrderReader := orderreadermock.NewMockOrderReader(ctrl)
 				mockSnapshotStore := snapshotmock.NewMockStore(ctrl)
+				mockMatchPublisher := matchpublisherv1_mock.NewMockMatchPublisher(ctrl)
 
 				ob := orderbook.NewOrderbook()
 				log, _ := logger.NewLogger()
@@ -253,8 +262,12 @@ func BenchmarkEngine_SnapshotCreation(b *testing.B) {
 					Return(nil).
 					AnyTimes()
 
-				engine := NewEngine(ob, mockOrderReader, mockSnapshotStore, log, cfg)
-				// FIXED: Initialize context
+				mockMatchPublisher.EXPECT().
+					PublishMatchEvent(gomock.Any(), gomock.Any()).
+					Return(nil).
+					AnyTimes()
+
+				engine := NewEngine(ob, mockOrderReader, mockSnapshotStore, mockMatchPublisher, log, cfg)
 				engine.ctx = context.Background()
 				return engine
 			},
@@ -284,6 +297,7 @@ func BenchmarkEngine_SnapshotCreation(b *testing.B) {
 				ctrl := gomock.NewController(b)
 				mockOrderReader := orderreadermock.NewMockOrderReader(ctrl)
 				mockSnapshotStore := snapshotmock.NewMockStore(ctrl)
+				mockMatchPublisher := matchpublisherv1_mock.NewMockMatchPublisher(ctrl)
 
 				ob := orderbook.NewOrderbook()
 				log, _ := logger.NewLogger()
@@ -299,8 +313,12 @@ func BenchmarkEngine_SnapshotCreation(b *testing.B) {
 					Return(nil).
 					AnyTimes()
 
-				engine := NewEngine(ob, mockOrderReader, mockSnapshotStore, log, cfg)
-				// FIXED: Initialize context
+				mockMatchPublisher.EXPECT().
+					PublishMatchEvent(gomock.Any(), gomock.Any()).
+					Return(nil).
+					AnyTimes()
+
+				engine := NewEngine(ob, mockOrderReader, mockSnapshotStore, mockMatchPublisher, log, cfg)
 				engine.ctx = context.Background()
 				return engine
 			},
@@ -401,7 +419,7 @@ func BenchmarkEngine_MixedOperations(b *testing.B) {
 				if i%100 == 0 {
 					_ = e.GetOrderOffset()
 					_ = e.GetLastSnapshotOffset()
-					_ = e.GetTotalMatches() // NEW: Check match stats
+					_ = e.GetTotalMatches()
 				}
 			},
 			cleanup: func(e *Engine) {},
@@ -480,3 +498,15 @@ func BenchmarkEngine_MemoryAllocation(b *testing.B) {
 		_ = engine.processOrder(&orderRequest)
 	}
 }
+
+// Helper function to create test order requests (uses the same function from engine_test.go)
+// func createTestOrderRequest(userID string, orderType orderbookv1.OrderType, bid bool, size, price float64, offset int64) orderbookv1.PlaceOrderRequest {
+// 	return orderbookv1.PlaceOrderRequest{
+// 		UserID: userID,
+// 		Type:   orderType,
+// 		Bid:    bid,
+// 		Size:   size,
+// 		Price:  price,
+// 		Offset: offset,
+// 	}
+// }

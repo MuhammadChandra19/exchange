@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	orderbookv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/orderbook/v1"
+	kafkav1 "github.com/muhammadchandra19/exchange/proto/go/kafka/v1"
 	kafka "github.com/segmentio/kafka-go"
 )
 
@@ -70,11 +70,11 @@ func (mr *MockOrderReaderMockRecorder) CommitMessages(ctx interface{}, msgs ...i
 }
 
 // ReadMessage mocks base method.
-func (m *MockOrderReader) ReadMessage(ctx context.Context) (kafka.Message, orderbookv1.PlaceOrderRequest, error) {
+func (m *MockOrderReader) ReadMessage(ctx context.Context) (kafka.Message, *kafkav1.PlaceOrderPayload, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadMessage", ctx)
 	ret0, _ := ret[0].(kafka.Message)
-	ret1, _ := ret[1].(orderbookv1.PlaceOrderRequest)
+	ret1, _ := ret[1].(*kafkav1.PlaceOrderPayload)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }

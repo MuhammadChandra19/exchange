@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/muhammadchandra19/exchange/pkg/logger"
+	matchpublisherv1_mock "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/match-publisher/v1/mock"
 	orderreaderv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/order-reader/v1"
 	orderreadermock "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/order-reader/v1/mock"
 	orderbookv1 "github.com/muhammadchandra19/exchange/services/matching-service/internal/domain/orderbook/v1"
@@ -22,12 +23,13 @@ import (
 
 // Test fixtures and helpers
 type testFixture struct {
-	ctrl              *gomock.Controller
-	mockOrderReader   *orderreadermock.MockOrderReader
-	mockSnapshotStore *snapshotmock.MockStore
-	orderbook         *orderbook.Orderbook
-	logger            *logger.Logger
-	config            *config.Config
+	ctrl               *gomock.Controller
+	mockOrderReader    *orderreadermock.MockOrderReader
+	mockSnapshotStore  *snapshotmock.MockStore
+	mockMatchPublisher *matchpublisherv1_mock.MockMatchPublisher
+	orderbook          *orderbook.Orderbook
+	logger             *logger.Logger
+	config             *config.Config
 }
 
 func setupTestFixture(t *testing.T) *testFixture {
@@ -37,11 +39,12 @@ func setupTestFixture(t *testing.T) *testFixture {
 	require.NoError(t, err)
 
 	return &testFixture{
-		ctrl:              ctrl,
-		mockOrderReader:   orderreadermock.NewMockOrderReader(ctrl),
-		mockSnapshotStore: snapshotmock.NewMockStore(ctrl),
-		orderbook:         orderbook.NewOrderbook(),
-		logger:            log,
+		ctrl:               ctrl,
+		mockOrderReader:    orderreadermock.NewMockOrderReader(ctrl),
+		mockSnapshotStore:  snapshotmock.NewMockStore(ctrl),
+		mockMatchPublisher: matchpublisherv1_mock.NewMockMatchPublisher(ctrl),
+		orderbook:          orderbook.NewOrderbook(),
+		logger:             log,
 		config: &config.Config{
 			Pair: "BTC-USD",
 			KafkaConfig: config.KafkaConfig{
@@ -74,10 +77,17 @@ func createTestOrderRequest(userID string, orderType orderbookv1.OrderType, bid 
 
 // Helper function to create engine with initialized context
 func createTestEngine(fixture *testFixture) *Engine {
+	// Setup basic match publisher expectations
+	fixture.mockMatchPublisher.EXPECT().
+		PublishMatchEvent(gomock.Any(), gomock.Any()).
+		Return(nil).
+		AnyTimes()
+
 	engine := NewEngine(
 		fixture.orderbook,
 		fixture.mockOrderReader,
 		fixture.mockSnapshotStore,
+		fixture.mockMatchPublisher,
 		fixture.logger,
 		fixture.config,
 	)
@@ -136,6 +146,7 @@ func TestNewEngine(t *testing.T) {
 				fixture.orderbook,
 				fixture.mockOrderReader,
 				fixture.mockSnapshotStore,
+				fixture.mockMatchPublisher,
 				fixture.logger,
 				fixture.config,
 			)
@@ -197,6 +208,7 @@ func TestNewEngineWithOptions(t *testing.T) {
 				fixture.orderbook,
 				fixture.mockOrderReader,
 				fixture.mockSnapshotStore,
+				fixture.mockMatchPublisher,
 				fixture.logger,
 				fixture.config,
 				tc.options,
@@ -428,6 +440,7 @@ func TestEngine_SnapshotManagement(t *testing.T) {
 				fixture.orderbook,
 				fixture.mockOrderReader,
 				fixture.mockSnapshotStore,
+				fixture.mockMatchPublisher,
 				fixture.logger,
 				fixture.config,
 				options,

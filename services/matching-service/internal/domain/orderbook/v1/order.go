@@ -44,8 +44,8 @@ type PlaceOrderRequest struct {
 // FromKafkaPayload converts a Kafka payload to a PlaceOrderRequest.
 func (r *PlaceOrderRequest) FromKafkaPayload(payload *pb.PlaceOrderPayload) *PlaceOrderRequest {
 	return &PlaceOrderRequest{
-		OrderID: payload.OrderId,
-		UserID:  payload.UserId,
+		OrderID: payload.OrderID,
+		UserID:  payload.UserID,
 		Type:    OrderType(payload.Type),
 		Bid:     payload.Bid,
 		Size:    payload.Size,
