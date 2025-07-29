@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/muhammadchandra19/exchange/pkg/grpclib/health"
 	"github.com/muhammadchandra19/exchange/pkg/logger"
@@ -37,7 +38,7 @@ type Config struct {
 }
 
 // NewGrpcServer creates a new gRPC server.
-func NewGrpcServer(ctx context.Context, config config.AppConfig) (*GrpcServer, error) {
+func NewGrpcServer(ctx context.Context, cfg *config.Config) (*GrpcServer, error) {
 	logger, err := logger.NewLogger()
 	if err != nil {
 		return nil, err
@@ -46,6 +47,7 @@ func NewGrpcServer(ctx context.Context, config config.AppConfig) (*GrpcServer, e
 	server := &GrpcServer{
 		Server:     grpc.NewServer(),
 		logger:     logger,
+		Config:     *cfg,
 		usecase:    bootstrap.Usecase{},
 		repository: bootstrap.Repository{},
 		rpc:        bootstrap.RPC{},
@@ -55,7 +57,9 @@ func NewGrpcServer(ctx context.Context, config config.AppConfig) (*GrpcServer, e
 	healthService := health.NewServer()
 	healthService.Register(server.Server)
 
-	server.initDB(ctx)
+	if err := server.initDB(ctx); err != nil {
+		return nil, fmt.Errorf("failed to initialize database: %w", err)
+	}
 
 	server.registerRepository()
 	server.registerUsecase()
@@ -63,7 +67,7 @@ func NewGrpcServer(ctx context.Context, config config.AppConfig) (*GrpcServer, e
 
 	server.registerGrpcServer()
 
-	if config.Environment == "development" {
+	if cfg.App.Environment == "development" {
 		reflection.Register(server.Server)
 	}
 
@@ -76,13 +80,15 @@ func (s *GrpcServer) Stop() {
 	s.db.Close()
 }
 
-func (s *GrpcServer) initDB(ctx context.Context) {
+func (s *GrpcServer) initDB(ctx context.Context) error {
 	questdbClient, err := questdb.NewClient(ctx, s.Config.QuestDB)
 	if err != nil {
 		s.logger.GetZap().DPanic("Failed to initialize QuestDB client", zap.Error(err))
+		return err
 	}
 
 	s.db = questdbClient
+	return nil
 }
 
 func (s *GrpcServer) registerRepository() {

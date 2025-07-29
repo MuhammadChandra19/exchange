@@ -26,6 +26,7 @@ func (u *Usecase) GetLatestTick(ctx context.Context, symbol string) (*tick.Tick,
 	if err != nil {
 		return nil, errors.TracerFromError(err)
 	}
+
 	return tick, nil
 }
 

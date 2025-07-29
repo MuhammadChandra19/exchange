@@ -18,6 +18,10 @@ type Tick struct {
 
 // ToProto converts the Tick to a protobuf message.
 func (t *Tick) ToProto() *shared.Tick {
+	if t == nil {
+		return nil
+	}
+
 	return &shared.Tick{
 		Symbol:    t.Symbol,
 		Price:     t.Price,

@@ -21,15 +21,18 @@ func main() {
 	cfg, err := config.Load()
 	if err != nil {
 		slog.Error("Failed to load config", "error", err)
+		os.Exit(1)
 	}
-	grpcServer, err := rpc.NewGrpcServer(ctx, cfg.App)
+	grpcServer, err := rpc.NewGrpcServer(ctx, cfg)
 	if err != nil {
 		slog.Error("Failed to create gRPC server", "error", err)
+		os.Exit(1)
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.App.GRPCPort))
 	if err != nil {
 		slog.Error("Failed to listen", "error", err)
+		os.Exit(1)
 	}
 
 	quit := make(chan os.Signal, 1)

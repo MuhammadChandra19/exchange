@@ -146,6 +146,8 @@ func (r *Repository) GetLatestBySymbol(ctx context.Context, symbol string) (*Tic
 		return nil, fmt.Errorf("failed to get latest tick: %w", err)
 	}
 
+	fmt.Println("tick", tick)
+
 	return tick, nil
 }
 

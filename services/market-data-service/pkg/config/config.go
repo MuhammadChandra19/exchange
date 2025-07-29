@@ -21,7 +21,7 @@ type AppConfig struct {
 	Name        string `env:"NAME" envDefault:"market-data-service"`
 	Environment string `env:"ENVIRONMENT" envDefault:"development"`
 	Port        int    `env:"PORT" envDefault:"8080"`
-	GRPCPort    int    `env:"GRPC_PORT" envDefault:"9090"`
+	GRPCPort    int    `env:"GRPC_PORT" envDefault:"8880"`
 	LogLevel    string `env:"LOG_LEVEL" envDefault:"info"`
 }
 

@@ -21,6 +21,37 @@ type OHLC struct {
 	TradeCount int64
 }
 
+// List is a list of OHLC.
+type List []*OHLC
+
+// ToProto converts the OHLC to a protobuf message.
+func (o *OHLC) ToProto() *shared.OHLC {
+	if o == nil {
+		return nil
+	}
+
+	return &shared.OHLC{
+		Timestamp:  o.Timestamp.Format(time.RFC3339),
+		Symbol:     o.Symbol,
+		Interval:   o.Interval,
+		Open:       o.Open,
+		High:       o.High,
+		Low:        o.Low,
+		Close:      o.Close,
+		Volume:     float64(o.Volume),
+		TradeCount: float64(o.TradeCount),
+	}
+}
+
+// ToProtoList converts the OHLC list to a protobuf message.
+func (o List) ToProtoList() []*shared.OHLC {
+	protoOHLCs := make([]*shared.OHLC, len(o))
+	for i, ohlc := range o {
+		protoOHLCs[i] = ohlc.ToProto()
+	}
+	return protoOHLCs
+}
+
 // OHLCFilter represents the filter criteria for OHLC data.
 type OHLCFilter struct {
 	Symbol   string

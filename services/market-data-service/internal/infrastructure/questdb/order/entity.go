@@ -36,6 +36,10 @@ type Order struct {
 
 // ToProto converts the order to a protobuf message.
 func (o *Order) ToProto() *pb.Order {
+	if o == nil {
+		return nil
+	}
+
 	return &pb.Order{
 		Id:        o.ID,
 		Symbol:    o.Symbol,

@@ -196,7 +196,7 @@ func (c *MatchConsumer) addTickToOHLCBuffers(tick *tickInfra.Tick) {
 
 			buffer = &ohlc.Buffer{
 				Symbol:     tick.Symbol,
-				Interval:   intervalConfig.Name.String(),
+				Interval:   intervalConfig.Name,
 				BucketTime: bucketTime,
 				Ticks:      make([]interval.TickData, 0),
 				LastUpdate: time.Now(),
@@ -264,8 +264,6 @@ func (c *MatchConsumer) aggregateOHLCBuffers(ctx context.Context) {
 		}
 	}
 
-	c.ohlcMutex.Unlock()
-
 	// Flush buffers outside of the lock
 	for _, buffer := range buffersToFlush {
 		go c.flushOHLCBuffer(ctx, buffer)
@@ -282,7 +280,7 @@ func (c *MatchConsumer) flushOHLCBuffer(ctx context.Context, buffer *ohlc.Buffer
 	}
 
 	// Get interval configuration
-	intervalConfig, err := interval.GetInterval(buffer.Interval)
+	intervalConfig, err := interval.GetInterval(buffer.Interval.String())
 	if err != nil {
 		c.logger.ErrorContext(ctx, err, logger.Field{
 			Key: "action", Value: "get_interval_config",

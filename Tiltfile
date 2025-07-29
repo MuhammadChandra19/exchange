@@ -45,6 +45,24 @@ opts = [
             "KAFKA_GROUP_ID": "btc_usdt_group",
         },
     },
+    {
+        "enabled": True,
+        "name": "Market Data Service - RPC",
+        "path": "market-data-service-rpc",
+        "only": ["./services/market-data-service"] + common_only,
+    },
+    {
+        "enabled": True,
+        "name": "Market Data Service Match - Consumer",
+        "path": "market-data-service-match-consumer",
+        "only": ["./services/market-data-service"] + common_only,
+    },
+    {
+        "enabled": True,
+        "name": "Market Data Service Order - Consumer",
+        "path": "market-data-service-order-consumer",
+        "only": ["./services/market-data-service"] + common_only,
+    },
 ]
 
 
