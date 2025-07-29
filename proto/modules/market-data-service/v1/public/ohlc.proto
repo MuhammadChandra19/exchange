@@ -85,7 +85,7 @@ message GetIntradayDataResponse {
 
 message GetOHLCByFilterRequest {
   string symbol = 1;
-  string interval = 2;
+  shared.Interval interval = 2;
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;
   int32 limit = 5;
@@ -112,5 +112,5 @@ message GetOHLCResponse {
   google.protobuf.Timestamp timestamp = 3;
   string error = 4;
   string code = 5;
-  repeated shared.OHLC data = 6;
+  shared.OHLC data = 6;
 }
