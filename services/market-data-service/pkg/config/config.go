@@ -21,7 +21,7 @@ type AppConfig struct {
 	Name        string `env:"NAME" envDefault:"market-data-service"`
 	Environment string `env:"ENVIRONMENT" envDefault:"development"`
 	Port        int    `env:"PORT" envDefault:"8080"`
-	GRPCPort    int    `env:"GRPC_PORT" envDefault:"8880"`
+	GRPCPort    int    `env:"GRPC_PORT" envDefault:"7777"`
 	LogLevel    string `env:"LOG_LEVEL" envDefault:"info"`
 }
 
@@ -37,7 +37,7 @@ type OrderKafkaConfig struct {
 // MatchKafkaConfig represents the Kafka configuration.
 type MatchKafkaConfig struct {
 	Brokers         []string `env:"BROKERS" envSeparator:"," envDefault:"localhost:9092"`
-	Topic           string   `env:"TOPIC" envDefault:"matches"`
+	Topic           string   `env:"TOPIC" envDefault:"match_events"`
 	ConsumerGroup   string   `env:"CONSUMER_GROUP" envDefault:"market-data-service"`
 	ConsumerTimeout int      `env:"CONSUMER_TIMEOUT" envDefault:"5"`
 	MaxRetries      int      `env:"MAX_RETRIES" envDefault:"3"`

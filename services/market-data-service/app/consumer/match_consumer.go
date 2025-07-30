@@ -43,6 +43,10 @@ func InitMatchConsumer(ctx context.Context, config config.Config) (*MatchConsume
 
 	dbTx := questdb.NewTransaction(matchConsumer.db)
 
+	matchConsumer.initDB(ctx)
+	matchConsumer.registerRepository()
+	matchConsumer.registerUsecase()
+
 	matchConsumer.Consumer = consumer.NewMatchConsumer(
 		config.MatchKafka,
 		logger,
@@ -50,10 +54,6 @@ func InitMatchConsumer(ctx context.Context, config config.Config) (*MatchConsume
 		matchConsumer.usecase.OhlcUsecase,
 		dbTx,
 	)
-
-	matchConsumer.initDB(ctx)
-	matchConsumer.registerRepository()
-	matchConsumer.registerUsecase()
 
 	return matchConsumer, nil
 }

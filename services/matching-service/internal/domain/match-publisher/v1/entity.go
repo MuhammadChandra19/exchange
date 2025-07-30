@@ -28,6 +28,7 @@ func CreateFromMatch(match *orderbookv1.Match, order *orderbookv1.Order) *pb.Mat
 
 	matchEvent.Volume = match.SizeFilled
 	matchEvent.Price = match.Price
+	matchEvent.Timestamp = timestamppb.Now()
 
 	return matchEvent
 }
