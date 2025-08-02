@@ -9,21 +9,21 @@ WORKDIR /app
 
 # Copy go mod files
 COPY go.work go.work.sum ./
-COPY services/market-data-service/go.mod services/market-data-service/go.sum ./services/market-data-service/
+COPY services/market-data/go.mod services/market-data/go.sum ./services/market-data/
 COPY pkg/errors/go.mod pkg/errors/go.sum ./pkg/errors/
 COPY pkg/logger/go.mod pkg/logger/go.sum ./pkg/logger/
 COPY pkg/util/go.mod pkg/util/go.sum ./pkg/util/
 
 # Download dependencies
-RUN cd services/market-data-service && go mod download
+RUN cd services/market-data && go mod download
 
 # Copy source code
-COPY services/market-data-service/ ./services/market-data-service/
+COPY services/market-data/ ./services/market-data/
 COPY pkg/ ./pkg/
 
 # Build the application
-RUN cd services/market-data-service && \
-  CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/market-data-service cmd/match_consumer/main.go
+RUN cd services/market-data && \
+  CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/market-data cmd/match_consumer/main.go
 
 # Final stage
 FROM alpine:latest
@@ -38,10 +38,10 @@ RUN adduser -D -s /bin/sh appuser
 WORKDIR /app
 
 # Copy binary from builder stage
-COPY --from=builder /app/services/market-data-service/bin/market-data-service-match-consumer .
+COPY --from=builder /app/services/market-data/bin/market-data-match-consumer .
 
 # Copy migrations
-COPY --from=builder /app/services/market-data-service/internal/infrastructure/questdb/migrations ./migrations
+COPY --from=builder /app/services/market-data/internal/infrastructure/questdb/migrations ./migrations
 
 # Change ownership to appuser
 RUN chown -R appuser:appuser /app
@@ -57,4 +57,4 @@ EXPOSE 8080 9090
 #   CMD curl -f http://localhost:8080/health || exit 1
 
 # Run the application
-CMD ["./market-data-service-match-consumer"] 
+CMD ["./market-data-match-consumer"] 

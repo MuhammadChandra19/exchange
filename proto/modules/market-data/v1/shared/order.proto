@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package modules.market_data.v1.shared;
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/modules/market-data/v1/shared";
+
+message Order {
+  string id = 1;
+  string timestamp = 2;
+  string symbol = 3;
+  string side = 4;
+  double price = 5;
+  int64 quantity = 6;
+  string type = 7;
+  string status = 8;
+  string userID = 9 [ json_name = "userID" ];
+}
+
+message OrderEvent {
+  string id = 1;
+  string timestamp = 2;
+  string orderID = 3 [ json_name = "orderID" ];
+  string eventType = 4 [ json_name = "eventType" ];
+  string symbol = 5;
+  string side = 6;
+  double price = 7;
+  int64 quantity = 8;
+  string userID = 9 [ json_name = "userID" ];
+  double newPrice = 10 [ json_name = "newPrice" ];
+  int64 newQuantity = 11 [ json_name = "newQuantity" ];
+}

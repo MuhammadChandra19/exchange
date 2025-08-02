@@ -4,8 +4,8 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-bin = "./tmp/matching-service"
-cmd = "go build -o ./tmp/matching-service ./services/matching-service/cmd/main.go"
+bin = "./tmp/matching-engine"
+cmd = "go build -o ./tmp/matching-engine ./services/matching-engine/cmd/main.go"
 delay = 1000
 exclude_dir = [
   "backend-e2e",

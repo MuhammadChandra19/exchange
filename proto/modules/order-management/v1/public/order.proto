@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package modules.order_management_service.v1.public;
+
+import "google/api/annotations.proto";
+import "modules/order-management/v1/shared/order.proto";
+import "google/protobuf/timestamp.proto";
+import "openapiv3/annotations.proto";
+import "core/v1/annotations.proto";
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/modules/order-management/v1/public";
+
+option (openapi.v3.document) = {
+  info : {title : "Order Management - Order Service" version : "1.0.0"}
+  servers : [ {url : "http://localhost:8080"} ]
+
+  components : {
+    security_schemes : {
+      additional_properties : {
+        name : "OAuth2"
+        value : {
+          security_scheme : {
+            type : "http",
+            scheme : "bearer",
+            bearer_format : "JWT"
+          }
+        }
+      }
+    }
+  }
+};
+
+service OrderService {
+  option (core.v1.service_descriptor) = {
+    path_prefixes : {path : "/v1/order"}
+  };
+
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse) {
+    option (google.api.http) = {
+      get : "/{orderID}"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get an order by ID"
+      description : "Retrieves an order by its unique identifier"
+    };
+  }
+
+  rpc GetOrders(GetOrdersRequest) returns (GetOrdersResponse) {
+    option (google.api.http) = {
+      get : "/list"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get orders"
+      description : "Retrieves orders"
+    };
+  }
+
+  rpc PlaceOrder(PlaceOrderRequest) returns (PlaceOrderResponse) {
+    option (google.api.http) = {
+      post : "/"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Place an order"
+      description : "Places a new order"
+    };
+  }
+
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse) {
+    option (google.api.http) = {
+      delete : "/{orderID}"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Cancel an order"
+      description : "Cancels an order"
+    };
+  }
+
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse) {
+    option (google.api.http) = {
+      put : "/{orderID}"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Update an order"
+      description : "Updates an order"
+    };
+  }
+};
+
+message CancelOrderRequest { string orderID = 1 [ json_name = "orderID" ]; }
+message CancelOrderResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+}
+
+message UpdateOrderRequest {
+  string orderID = 1 [ json_name = "orderID" ];
+  shared.Order order = 2 [ json_name = "order" ];
+  optional shared.OrderOption option = 3 [ json_name = "option" ];
+}
+
+message UpdateOrderResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+}
+
+message PlaceOrderRequest {
+  shared.Order order = 1 [ json_name = "order" ];
+  optional shared.OrderOption option = 2 [ json_name = "option" ];
+}
+
+message PlaceOrderResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  shared.OrderDetail data = 6;
+}
+
+message GetOrderRequest { string orderID = 1 [ json_name = "orderID" ]; }
+message GetOrderResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  shared.OrderDetail data = 6;
+}
+
+message GetOrdersRequest {
+  string symbol = 1 [ json_name = "symbol" ];
+  string side = 2 [ json_name = "side" ];
+  string status = 3 [ json_name = "status" ];
+  string userID = 4 [ json_name = "userID" ];
+  google.protobuf.Timestamp from = 5 [ json_name = "from" ];
+  google.protobuf.Timestamp to = 6 [ json_name = "to" ];
+  int32 limit = 7 [ json_name = "limit" ];
+  int32 offset = 8 [ json_name = "offset" ];
+}
+message GetOrdersResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  repeated shared.OrderDetail data = 6;
+}

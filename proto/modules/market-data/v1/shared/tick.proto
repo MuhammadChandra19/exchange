@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package modules.market_data.v1.shared;
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/modules/market-data/v1/shared";
+
+message Tick {
+  string symbol = 1;
+  string side = 2;
+  double price = 3;
+  int64 volume = 4;
+  string timestamp = 5;
+}

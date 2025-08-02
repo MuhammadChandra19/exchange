@@ -12,6 +12,6 @@ use (
 	./pkg/util
 	./proto
 	./rpc-gateway
-	./services/market-data-service
-	./services/matching-service
+	./services/market-data
+	./services/matching-engine
 )

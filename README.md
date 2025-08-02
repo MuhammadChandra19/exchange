@@ -75,7 +75,7 @@ The Exchange Platform is a modular, scalable cryptocurrency exchange that handle
 
 ## Current Services
 
-### 🎯 [Matching Service](services/matching-service/)
+### 🎯 [Matching Service](services/matching-engine/)
 
 High-performance order matching engine with price-time priority.
 
@@ -85,11 +85,11 @@ High-performance order matching engine with price-time priority.
 - **Deployment**: One instance per trading pair
 
 ```bash
-cd services/matching-service
+cd services/matching-engine
 go run cmd/main.go
 ```
 
-### 📊 [Market Data Service](services/market-data-service/)
+### 📊 [Market Data Service](services/market-data/)
 
 Real-time market data processing and API service.
 
@@ -99,7 +99,7 @@ Real-time market data processing and API service.
 - **Storage**: Time-series optimized with partitioning
 
 ```bash
-cd services/market-data-service
+cd services/market-data
 
 # Start gRPC server
 go run cmd/rpc/main.go
@@ -156,22 +156,22 @@ The platform includes reusable packages in [`pkg/`](pkg/) for common functionali
 
 3. **Run database migrations**
    ```bash
-   cd services/market-data-service
+   cd services/market-data
    make migrate
    ```
 
 4. **Start services**
    ```bash
    # Terminal 1: Matching Service (BTC/USD)
-   cd services/matching-service
+   cd services/matching-engine
    PAIR=BTC/USD go run cmd/main.go
 
    # Terminal 2: Market Data gRPC Server
-   cd services/market-data-service  
+   cd services/market-data  
    go run cmd/rpc/main.go
 
    # Terminal 3: Market Data Consumer
-   cd services/market-data-service
+   cd services/market-data
    go run cmd/order_consumer/main.go
    ```
 
@@ -180,13 +180,13 @@ The platform includes reusable packages in [`pkg/`](pkg/) for common functionali
 Create `.env` files in each service directory:
 
 ```env
-# services/matching-service/.env
+# services/matching-engine/.env
 PAIR=BTC/USD
 KAFKA_TOPIC=orders
 KAFKA_BROKER=localhost:9092
 REDIS_ADDRESS=localhost:6379
 
-# services/market-data-service/.env  
+# services/market-data/.env  
 APP_GRPC_PORT=9090
 QUESTDB_HOST=localhost
 QUESTDB_PORT=8812
@@ -201,8 +201,8 @@ ORDER_KAFKA_TOPIC=orders
 ```
 exchange/
 ├── services/                    # Microservices
-│   ├── matching-service/       # Order matching engine
-│   ├── market-data-service/    # Market data processing
+│   ├── matching-engine/       # Order matching engine
+│   ├── market-data/    # Market data processing
 │   └── [future-services]/      # Future service implementations
 ├── pkg/                        # Shared packages
 │   ├── questdb/               # Database clients

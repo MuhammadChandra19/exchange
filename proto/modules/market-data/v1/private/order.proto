@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "modules/market-data/v1/shared/order.proto";
+
+package modules.market_data.v1.private;
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/modules/market-data/v1/private";
+
+service OrderService {
+  rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
+  rpc GetOrders(GetOrdersRequest) returns (GetOrdersResponse);
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+};
+
+message DeleteOrderRequest { string orderID = 1 [ json_name = "orderID" ]; }
+message DeleteOrderResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+}
+
+message UpdateOrderRequest {
+  string orderID = 1 [ json_name = "orderID" ];
+  shared.Order order = 2 [ json_name = "order" ];
+}
+
+message UpdateOrderResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+}
+
+message GetOrderRequest { string orderID = 1 [ json_name = "orderID" ]; }
+message GetOrderResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  shared.Order data = 6;
+}
+
+message GetOrdersRequest { string userID = 1 [ json_name = "userID" ]; }
+
+message GetOrdersResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  repeated shared.Order data = 6;
+}

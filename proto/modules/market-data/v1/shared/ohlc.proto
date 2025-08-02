@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package modules.market_data.v1.shared;
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/modules/market-data/v1/shared";
+
+enum Interval {
+  INTERVAL_UNDEFINED = 0;
+  INTERVAL_1M = 1;
+  INTERVAL_5M = 2;
+  INTERVAL_15M = 3;
+  INTERVAL_30M = 4;
+  INTERVAL_1H = 5;
+  INTERVAL_4H = 6;
+  INTERVAL_1D = 7;
+  INTERVAL_1W = 8;
+}
+
+message OHLC {
+  string symbol = 1;
+  string timestamp = 2;
+  Interval interval = 3;
+  double open = 4;
+  double high = 5;
+  double low = 6;
+  double close = 7;
+  double volume = 8;
+  double trade_count = 9;
+}

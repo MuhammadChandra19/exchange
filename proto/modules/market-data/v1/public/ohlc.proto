@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package modules.market_data.v1.public;
+
+import "google/api/annotations.proto";
+import "modules/market-data/v1/shared/ohlc.proto";
+import "google/protobuf/timestamp.proto";
+import "openapiv3/annotations.proto";
+import "core/v1/annotations.proto";
+
+option go_package = "github.com/muhammadchandra19/exchange/proto/modules/market-data/v1/public";
+
+option (openapi.v3.document) = {
+  info : {title : "Market Data - OHLC Service" version : "1.0.0"}
+  servers : [ {url : "http://localhost:8080"} ]
+
+  components : {
+    security_schemes : {
+      additional_properties : {
+        name : "OAuth2"
+        value : {
+          security_scheme : {
+            type : "http",
+            scheme : "bearer",
+            bearer_format : "JWT"
+          }
+        }
+      }
+    }
+  }
+};
+
+service OHLCService {
+  option (core.v1.service_descriptor) = {
+    path_prefixes : {path : "/v1/ohlc"}
+  };
+
+  rpc GetOHLC(GetOHLCRequest) returns (GetOHLCResponse) {
+    option (google.api.http) = {
+      get : "/{symbol}/{interval}"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get OHLC"
+      description : "Retrieves OHLC data for a given symbol and interval"
+    };
+  };
+
+  rpc GetOHLCByFilter(GetOHLCByFilterRequest)
+      returns (GetOHLCByFilterResponse) {
+    option (google.api.http) = {
+      get : "/list"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get OHLC by filter"
+      description : "Retrieves OHLC data for a given filter"
+    };
+  };
+
+  rpc GetIntradayData(GetIntradayDataRequest)
+      returns (GetIntradayDataResponse) {
+    option (google.api.http) = {
+      get : "/intraday/{symbol}/{interval}/{limit}"
+    };
+    option (openapi.v3.operation) = {
+      summary : "Get intraday data"
+      description : "Retrieves intraday data for a given symbol and interval"
+    };
+  };
+}
+
+message GetIntradayDataRequest {
+  string symbol = 1;
+  string interval = 2;
+  int32 limit = 3;
+}
+
+message GetIntradayDataResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  repeated shared.OHLC data = 6;
+}
+
+message GetOHLCByFilterRequest {
+  string symbol = 1;
+  shared.Interval interval = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+}
+
+message GetOHLCByFilterResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  repeated shared.OHLC data = 6;
+}
+
+message GetOHLCRequest {
+  string symbol = 1;
+  string interval = 2;
+}
+
+message GetOHLCResponse {
+  string status = 1;
+  string message = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string error = 4;
+  string code = 5;
+  shared.OHLC data = 6;
+}

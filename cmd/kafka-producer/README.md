@@ -104,7 +104,7 @@ This tool works perfectly with your matching service:
 
 1. **Start your matching service:**
 ```bash
-cd services/matching-service
+cd services/matching-engine
 export KAFKA_TOPIC=orders
 export KAFKA_BROKER=localhost:9092  
 export PAIR=BTC-USD

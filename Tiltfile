@@ -12,8 +12,8 @@ opts = [
     {
         "enabled": True,
         "name": "eth-btc",
-        "path": "matching-service",
-        "only": ["./services/matching-service"] + common_only,
+        "path": "matching-engine",
+        "only": ["./services/matching-engine"] + common_only,
         "env_override": {
             "PAIR": "ETH/BTC",
             "PORT": "8081",
@@ -24,8 +24,8 @@ opts = [
     {
         "enabled": True,
         "name": "eth-usdt",
-        "path": "matching-service",
-        "only": ["./services/matching-service"] + common_only,
+        "path": "matching-engine",
+        "only": ["./services/matching-engine"] + common_only,
         "env_override": {
             "PAIR": "ETH/USDT",
             "PORT": "8082",
@@ -36,8 +36,8 @@ opts = [
     {
         "enabled": True,
         "name": "btc-usdt",
-        "path": "matching-service",
-        "only": ["./services/matching-service"] + common_only,
+        "path": "matching-engine",
+        "only": ["./services/matching-engine"] + common_only,
         "env_override": {
             "PAIR": "BTC/USDT",
             "PORT": "8083",
@@ -48,20 +48,20 @@ opts = [
     {
         "enabled": True,
         "name": "Market Data Service - RPC",
-        "path": "market-data-service-rpc",
-        "only": ["./services/market-data-service"] + common_only,
+        "path": "market-data-rpc",
+        "only": ["./services/market-data"] + common_only,
     },
     {
         "enabled": True,
         "name": "Market Data Service Match - Consumer",
-        "path": "market-data-service-match-consumer",
-        "only": ["./services/market-data-service"] + common_only,
+        "path": "market-data-match-consumer",
+        "only": ["./services/market-data"] + common_only,
     },
     {
         "enabled": True,
         "name": "Market Data Service Order - Consumer",
-        "path": "market-data-service-order-consumer",
-        "only": ["./services/market-data-service"] + common_only,
+        "path": "market-data-order-consumer",
+        "only": ["./services/market-data"] + common_only,
     },
 ]
 

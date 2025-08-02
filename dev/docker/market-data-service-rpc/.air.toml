@@ -2,8 +2,8 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-bin = "./tmp/market-data-service-rpc"
-cmd = "go build -o ./tmp/market-data-service-rpc ./services/market-data-service/cmd/rpc/main.go"
+bin = "./tmp/market-data-rpc"
+cmd = "go build -o ./tmp/market-data-rpc ./services/market-data/cmd/rpc/main.go"
 delay = 1000
 exclude_dir = ["build", "tmp", "vendor", ".git", "bin", "dist"]
 exclude_file = []
