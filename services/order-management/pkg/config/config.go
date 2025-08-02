@@ -5,14 +5,16 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
+	"github.com/muhammadchandra19/exchange/pkg/postgresql"
 	"github.com/muhammadchandra19/exchange/pkg/questdb"
 )
 
 // Config represents the application configuration.
 type Config struct {
-	App        AppConfig        `envPrefix:"APP_"`
-	QuestDB    questdb.Config   `envPrefix:"QUESTDB_"`
-	OrderKafka OrderKafkaConfig `envPrefix:"ORDER_KAFKA_"`
+	App        AppConfig         `envPrefix:"APP_"`
+	QuestDB    questdb.Config    `envPrefix:"QUESTDB_"`
+	OrderKafka OrderKafkaConfig  `envPrefix:"ORDER_KAFKA_"`
+	PostgreSQL postgresql.Config `envPrefix:"POSTGRESQL_"`
 }
 
 // AppConfig represents the application configuration.
