@@ -7,6 +7,7 @@ use (
 	./pkg/httplib
 	./pkg/logger
 	./pkg/migration
+	./pkg/postgresql
 	./pkg/questdb
 	./pkg/redis
 	./pkg/util
@@ -14,4 +15,5 @@ use (
 	./rpc-gateway
 	./services/market-data
 	./services/matching-engine
+	./services/order-management
 )
