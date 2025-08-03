@@ -40,6 +40,10 @@ func (r *repository) Store(ctx context.Context, order *Order) error {
 		order.Timestamp,
 	)
 	if err != nil {
+		r.logger.Error(err, logger.Field{
+			Key:   "error",
+			Value: err.Error(),
+		})
 		return errors.TracerFromError(err)
 	}
 
@@ -79,6 +83,10 @@ func (r *repository) StoreBatch(ctx context.Context, orders []*Order) error {
 	}))
 
 	if err != nil {
+		r.logger.Error(err, logger.Field{
+			Key:   "error",
+			Value: err.Error(),
+		})
 		return errors.TracerFromError(err)
 	}
 
@@ -106,14 +114,18 @@ func (r *repository) Update(ctx context.Context, order *Order) error {
 		order.ID,
 	)
 
+	if err != nil {
+		r.logger.Error(err, logger.Field{
+			Key:   "error",
+			Value: err.Error(),
+		})
+		return errors.TracerFromError(err)
+	}
+
 	r.logger.Info("Updated order", logger.Field{
 		Key:   "commandTag",
 		Value: cmd.String(),
 	})
-
-	if err != nil {
-		return errors.TracerFromError(err)
-	}
 
 	return nil
 }
@@ -136,6 +148,9 @@ func (r *repository) GetByID(ctx context.Context, id string) (*Order, error) {
 	)
 
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
 		return nil, errors.TracerFromError(err)
 	}
 
@@ -148,6 +163,10 @@ func (r *repository) Delete(ctx context.Context, id string) error {
 
 	_, err := r.db.Exec(ctx, query, id)
 	if err != nil {
+		r.logger.Error(err, logger.Field{
+			Key:   "error",
+			Value: err.Error(),
+		})
 		return errors.TracerFromError(err)
 	}
 
@@ -214,8 +233,21 @@ func (r *repository) List(ctx context.Context, filter Filter) ([]*Order, error) 
 		argIndex++
 	}
 
+	fmt.Println(query)
+	fmt.Println(args)
+
 	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
+		r.logger.Error(err, logger.Field{
+			Key:   "error query",
+			Value: err.Error(),
+		}, logger.Field{
+			Key:   "query",
+			Value: query,
+		}, logger.Field{
+			Key:   "args",
+			Value: args,
+		})
 		return nil, errors.TracerFromError(err)
 	}
 	defer rows.Close()
@@ -235,6 +267,10 @@ func (r *repository) List(ctx context.Context, filter Filter) ([]*Order, error) 
 			&order.Timestamp,
 		)
 		if err != nil {
+			r.logger.Error(err, logger.Field{
+				Key:   "error scan",
+				Value: err.Error(),
+			})
 			return nil, errors.TracerFromError(err)
 		}
 		orders = append(orders, order)

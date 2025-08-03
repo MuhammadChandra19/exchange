@@ -198,7 +198,7 @@ func (c *Client) Query(ctx context.Context, sql string, args ...any) (RowsInterf
 }
 
 // QueryRow executes a query that is expected to return at most one row
-func (c *Client) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+func (c *Client) QueryRow(ctx context.Context, sql string, args ...any) RowInterface {
 	if tx, ok := GetTx(ctx); ok {
 		return tx.QueryRow(ctx, sql, args...)
 	}

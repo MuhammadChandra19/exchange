@@ -60,12 +60,32 @@ func (r *RowsWrapper) FieldDescriptions() []pgconn.FieldDescription {
 	return r.rows.FieldDescriptions()
 }
 
+// RowInterface wraps pgx.Row for mocking
+type RowInterface interface {
+	Scan(dest ...any) error
+}
+
+// RowWrapper wraps pgx.Row to implement RowInterface
+type RowWrapper struct {
+	row pgx.Row
+}
+
+// NewRowWrapper creates a new RowWrapper.
+func NewRowWrapper(row pgx.Row) RowInterface {
+	return &RowWrapper{row: row}
+}
+
+// Scan scans the next row into the given destination.
+func (r *RowWrapper) Scan(dest ...any) error {
+	return r.row.Scan(dest...)
+}
+
 // PostgreSQLClient defines the interface for PostgreSQL operations.
 type PostgreSQLClient interface {
 	// Basic query operations
 	Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error)
 	Query(ctx context.Context, sql string, args ...any) (RowsInterface, error)
-	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+	QueryRow(ctx context.Context, sql string, args ...any) RowInterface
 
 	// Transaction operations
 	Begin(ctx context.Context) (pgx.Tx, error)
@@ -92,60 +112,4 @@ type PostgreSQLClient interface {
 	DatabaseName() string
 	Host() string
 	Port() int
-}
-
-// QueryBuilder provides a fluent interface for building queries
-type QueryBuilder interface {
-	Select(columns ...string) QueryBuilder
-	From(table string) QueryBuilder
-	Where(condition string, args ...any) QueryBuilder
-	Join(table, condition string) QueryBuilder
-	LeftJoin(table, condition string) QueryBuilder
-	RightJoin(table, condition string) QueryBuilder
-	GroupBy(columns ...string) QueryBuilder
-	Having(condition string, args ...any) QueryBuilder
-	OrderBy(column string, desc ...bool) QueryBuilder
-	Limit(limit int) QueryBuilder
-	Offset(offset int) QueryBuilder
-	Build() (string, []any)
-	Reset() QueryBuilder
-}
-
-// InsertBuilder provides a fluent interface for building INSERT queries
-type InsertBuilder interface {
-	Into(table string) InsertBuilder
-	Columns(columns ...string) InsertBuilder
-	Values(values ...any) InsertBuilder
-	ValuesSlice(valuesSlice [][]any) InsertBuilder
-	ValuesMaps(valueMaps []map[string]any) InsertBuilder
-	ValuesMap(valueMap map[string]any) InsertBuilder
-	OnConflict(constraint string) InsertBuilder
-	OnConflictDoNothing() InsertBuilder
-	OnConflictDoUpdate(setClause string, args ...any) InsertBuilder
-	Returning(columns ...string) InsertBuilder
-	ValuesFromStruct(structs any) InsertBuilder
-	ValueCount() int
-	ClearValues() InsertBuilder
-	Build() (string, []any)
-	Reset() InsertBuilder
-}
-
-// UpdateBuilder provides a fluent interface for building UPDATE queries
-type UpdateBuilder interface {
-	Table(table string) UpdateBuilder
-	Set(column string, value any) UpdateBuilder
-	SetMap(updates map[string]any) UpdateBuilder
-	Where(condition string, args ...any) UpdateBuilder
-	Returning(columns ...string) UpdateBuilder
-	Build() (string, []any)
-	Reset() UpdateBuilder
-}
-
-// DeleteBuilder provides a fluent interface for building DELETE queries
-type DeleteBuilder interface {
-	From(table string) DeleteBuilder
-	Where(condition string, args ...any) DeleteBuilder
-	Returning(columns ...string) DeleteBuilder
-	Build() (string, []any)
-	Reset() DeleteBuilder
 }
