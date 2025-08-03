@@ -802,6 +802,20 @@ func (mr *MockInsertBuilderMockRecorder) Values(values ...interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Values", reflect.TypeOf((*MockInsertBuilder)(nil).Values), values...)
 }
 
+// ValuesFromStruct mocks base method.
+func (m *MockInsertBuilder) ValuesFromStruct(structs any) postgresql.InsertBuilder {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValuesFromStruct", structs)
+	ret0, _ := ret[0].(postgresql.InsertBuilder)
+	return ret0
+}
+
+// ValuesFromStruct indicates an expected call of ValuesFromStruct.
+func (mr *MockInsertBuilderMockRecorder) ValuesFromStruct(structs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValuesFromStruct", reflect.TypeOf((*MockInsertBuilder)(nil).ValuesFromStruct), structs)
+}
+
 // ValuesMap mocks base method.
 func (m *MockInsertBuilder) ValuesMap(valueMap map[string]any) postgresql.InsertBuilder {
 	m.ctrl.T.Helper()
@@ -814,6 +828,34 @@ func (m *MockInsertBuilder) ValuesMap(valueMap map[string]any) postgresql.Insert
 func (mr *MockInsertBuilderMockRecorder) ValuesMap(valueMap interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValuesMap", reflect.TypeOf((*MockInsertBuilder)(nil).ValuesMap), valueMap)
+}
+
+// ValuesMaps mocks base method.
+func (m *MockInsertBuilder) ValuesMaps(valueMaps []map[string]any) postgresql.InsertBuilder {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValuesMaps", valueMaps)
+	ret0, _ := ret[0].(postgresql.InsertBuilder)
+	return ret0
+}
+
+// ValuesMaps indicates an expected call of ValuesMaps.
+func (mr *MockInsertBuilderMockRecorder) ValuesMaps(valueMaps interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValuesMaps", reflect.TypeOf((*MockInsertBuilder)(nil).ValuesMaps), valueMaps)
+}
+
+// ValuesSlice mocks base method.
+func (m *MockInsertBuilder) ValuesSlice(valuesSlice [][]any) postgresql.InsertBuilder {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValuesSlice", valuesSlice)
+	ret0, _ := ret[0].(postgresql.InsertBuilder)
+	return ret0
+}
+
+// ValuesSlice indicates an expected call of ValuesSlice.
+func (mr *MockInsertBuilderMockRecorder) ValuesSlice(valuesSlice interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValuesSlice", reflect.TypeOf((*MockInsertBuilder)(nil).ValuesSlice), valuesSlice)
 }
 
 // MockUpdateBuilder is a mock of UpdateBuilder interface.

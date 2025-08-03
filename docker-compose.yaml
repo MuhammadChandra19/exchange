@@ -7,6 +7,32 @@ services: # # The dependencies
     networks: 
       - app-network
   
+  postgresql:
+    image: postgres:15-alpine
+    container_name: postgresql
+    hostname: postgresql
+    ports:
+      - "5432:5432"
+    environment:
+      # Main database settings
+      - POSTGRES_DB=exchange
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      # Additional databases will be created via init script
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      # - ./dev/postgresql/init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d exchange"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  
   questdb:
     image: questdb/questdb:latest
     container_name: questdb
@@ -48,6 +74,7 @@ services: # # The dependencies
       - "localhost:127.0.0.1" 
     networks: 
       - app-network 
+      
   kafka: 
     image: docker.io/bitnami/kafka:3.6.1 
     ports: 
@@ -73,6 +100,7 @@ services: # # The dependencies
     - "localhost:127.0.0.1"
     networks: 
       - app-network 
+      
   kafka-ui: 
     image: provectuslabs/kafka-ui:latest 
     ports: 
@@ -101,6 +129,8 @@ volumes:
   questdb_data:
     driver: local
   questdb_conf:
+    driver: local
+  postgresql_data:
     driver: local
     
 networks: 

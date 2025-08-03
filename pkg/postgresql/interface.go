@@ -116,11 +116,16 @@ type InsertBuilder interface {
 	Into(table string) InsertBuilder
 	Columns(columns ...string) InsertBuilder
 	Values(values ...any) InsertBuilder
+	ValuesSlice(valuesSlice [][]any) InsertBuilder
+	ValuesMaps(valueMaps []map[string]any) InsertBuilder
 	ValuesMap(valueMap map[string]any) InsertBuilder
 	OnConflict(constraint string) InsertBuilder
 	OnConflictDoNothing() InsertBuilder
 	OnConflictDoUpdate(setClause string, args ...any) InsertBuilder
 	Returning(columns ...string) InsertBuilder
+	ValuesFromStruct(structs any) InsertBuilder
+	ValueCount() int
+	ClearValues() InsertBuilder
 	Build() (string, []any)
 	Reset() InsertBuilder
 }
