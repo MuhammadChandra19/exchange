@@ -53,15 +53,15 @@ opts = [
     },
     {
         "enabled": True,
-        "name": "Market Data Service Match - Consumer",
+        "name": "Market Data Service - Match Consumer",
         "path": "market-data-match-consumer",
         "only": ["./services/market-data"] + common_only,
     },
     {
         "enabled": True,
-        "name": "Market Data Service Order - Consumer",
-        "path": "market-data-order-consumer",
-        "only": ["./services/market-data"] + common_only,
+        "name": "Order Management Service - Order Consumer",
+        "path": "order-management-order-consumer",
+        "only": ["./services/order-management"] + common_only,
     },
 ]
 
