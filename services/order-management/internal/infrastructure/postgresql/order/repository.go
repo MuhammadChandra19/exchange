@@ -233,9 +233,6 @@ func (r *repository) List(ctx context.Context, filter Filter) ([]*Order, error) 
 		argIndex++
 	}
 
-	fmt.Println(query)
-	fmt.Println(args)
-
 	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
 		r.logger.Error(err, logger.Field{
